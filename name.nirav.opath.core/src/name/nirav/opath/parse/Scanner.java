@@ -9,7 +9,7 @@
 package name.nirav.opath.parse;
 
 /**
- * @author nrulezz
+ * 
  * 
  */
 public class Scanner {

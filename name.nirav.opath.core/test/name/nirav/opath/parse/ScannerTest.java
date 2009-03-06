@@ -16,7 +16,7 @@ import name.nirav.opath.parse.Scanner.Type;
 import org.junit.Test;
 
 /**
- * @author nrulezz
+ * 
  * 
  */
 public class ScannerTest extends TestCase {

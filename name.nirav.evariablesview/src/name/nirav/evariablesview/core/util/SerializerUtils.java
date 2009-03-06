@@ -10,6 +10,14 @@ import java.io.IOException;
 import org.jboss.serial.io.JBossObjectInputStream;
 import org.jboss.serial.io.JBossObjectOutputStream;
 
+/*******************************************************************************
+ * Copyright (c) 2009 Nirav Thaker.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ *******************************************************************************/
 public class SerializerUtils {
 	public static void serialize(File file,Object obj) throws IOException {
 		FileOutputStream fos = new FileOutputStream(file);

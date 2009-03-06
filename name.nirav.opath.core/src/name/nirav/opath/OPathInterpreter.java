@@ -25,7 +25,7 @@ import name.nirav.opath.parse.ast.ASTVisitor;
 import name.nirav.opath.parse.ast.StepType;
 
 /**
- * @author nrulezz
+ * 
  * 
  */
 public class OPathInterpreter extends ASTVisitor {

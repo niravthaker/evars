@@ -19,7 +19,7 @@ import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
 /**
- * @author nrulezz
+ * 
  * 
  */
 @SuppressWarnings("restriction")

@@ -11,7 +11,7 @@ package name.nirav.opath.parse.ast;
 
 
 /**
- * @author nrulezz
+ * 
  * 
  */
 public class OPathAST {

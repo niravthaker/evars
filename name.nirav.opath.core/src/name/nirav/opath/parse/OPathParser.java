@@ -18,7 +18,7 @@ import name.nirav.opath.parse.ast.ASTStep;
 import name.nirav.opath.parse.ast.OPathAST;
 
 /**
- * @author nrulezz
+ * 
  * 
  */
 public class OPathParser {

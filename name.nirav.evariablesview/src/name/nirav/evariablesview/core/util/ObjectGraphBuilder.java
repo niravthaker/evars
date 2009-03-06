@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.debug.core.model.JDIVariable;
 import org.eclipse.jface.viewers.ITreeSelection;
 
 /**
- * @author nrulezz
+ * 
  * 
  */
 @SuppressWarnings("restriction")

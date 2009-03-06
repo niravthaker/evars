@@ -28,7 +28,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Display;
 
 /**
- * @author nrulezz
+ * 
  * 
  */
 @SuppressWarnings("restriction")
