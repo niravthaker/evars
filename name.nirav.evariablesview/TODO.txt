@@ -1,0 +1,2 @@
+- Save and reload variables
+- Allow XPath expression to search variables

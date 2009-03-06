@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.viewActions">
+      <viewContribution
+            id="name.nirav.evariablesview.viewContribution1"
+            targetID="org.eclipse.debug.ui.VariableView">
+         
+         <action
+               class="name.nirav.evariablesview.ui.SaveVariablesBinaryAction"
+               icon="icons/variable_export.gif"
+               id="name.nirav.evariablesview.exportvar"
+               label="Export Reloadable Variables"
+               menubarPath="variableGroup"
+               style="push"
+               toolbarPath="variableGroup">
+            <enablement>
+               <or>
+                  <objectClass
+                        name="org.eclipse.debug.core.model.IDebugElement">
+                  </objectClass>
+               </or>
+            </enablement>
+               
+         </action>
+         <action
+               class="name.nirav.evariablesview.ui.LoadBinaryVariablesActionDelegate"
+               icon="icons/variable_import.gif"
+               id="name.nirav.evariablesview.importvars"
+               label="Load Variables"
+               menubarPath="variableGroup"
+               style="push"
+               toolbarPath="variableGroup">
+            <enablement>
+               <or>
+                  <objectClass
+                        name="org.eclipse.debug.core.model.IDebugElement">
+                  </objectClass>
+               </or>
+            </enablement>
+         </action>
+         <action
+               class="name.nirav.evariablesview.ui.ExpandVariablesAction"
+               icon="icons/expandall.gif"
+               id="name.nirav.evariablesview.expandvars"
+               label="Expand Variables"
+               style="push"
+               toolbarPath="variableGroup">
+            <enablement>
+               <or>
+                  <objectClass
+                        name="org.eclipse.debug.core.model.IDebugElement">
+                  </objectClass>
+               </or>
+            </enablement>
+         </action>
+         <action
+               class="name.nirav.evariablesview.ui.SaveVariablesAction"
+               icon="icons/variable_export.gif"
+               id="name.nirav.evariablesview.exportvarp"
+               label="Export Variables"
+               menubarPath="variableGroup"
+               style="push"
+               toolbarPath="variableGroup">
+            <enablement>
+               <or>
+                  <objectClass
+                        name="org.eclipse.debug.core.model.IDebugElement">
+                  </objectClass>
+               </or>
+            </enablement>
+         </action>
+         
+      </viewContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="name.nirav.evariablesview.ui.AttachSearchFeature">
+      </startup>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="name.nirav.evariablesview"
+            name="OPath">
+      </category>
+      <view
+            category="name.nirav.evariablesview"
+            class="name.nirav.evariablesview.ui.view.OPathFilteredView"
+            icon="icons/filenav_nav.gif"
+            id="name.nirav.evariablesview.views.OPathFilteredView"
+            name="OPath Results">
+      </view>
+   </extension>
+   
+
+</plugin>
