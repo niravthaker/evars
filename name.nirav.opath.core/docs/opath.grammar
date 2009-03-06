@@ -1,0 +1,47 @@
+LP 						::= RelativeLP 
+							| AbsoluteLP
+AbsoluteLP 				::= '/' RelativeLP 
+							| AbbreviatedAbsoluteLP
+RelativeLP 				::= Step 
+							| RelativeLP '/' Step 
+							| AbbreviatedRelativeLP
+Step 					::= NameTest Predicate* 
+							| AbbreviatedStep 
+Predicate 				::= '[' PredicateExpr ']'
+PredicateExpr 				::= Expr
+AbbreviatedAbsoluteLP	::= '//' RelativeLP
+AbbreviatedRelativeLP	::= RelativeLP '//' Step
+AbbreviatedStep 		::= '.' | '..'
+				            
+Expr	 				::= Predicate 
+                    		| Literal 
+                    		| Number 
+Literal 				::= '"' [^"]* '"' 
+							| "'" [^']* "'"
+Number 					::= Digits ('.' Digits?)? 
+							| '.' Digits
+Digits 					::= [0-9]+
+NameTest 				::= '*' | QName | '@' QName
+QName					::= <JavaIdentifier>
+
+=============
+Expr 					::= EqualityExpr 
+EqualityExpr 			::= RelationalExpr 
+							| EqualityExpr '=' RelationalExpr 
+							| EqualityExpr '!=' RelationalExpr
+RelationalExpr 			::= ExprToken
+				            | RelationalExpr '<' ExprToken
+				            | RelationalExpr '>' ExprToken
+				            | RelationalExpr '<=' ExprToken
+==================
+Examples:
+
+Valid OPath
+1 /company/vendor[1]/contact[2]
+2 /*/str[3]/@length
+3 //filters
+4 bean/property
+5 //object/../parent/@child[4]
+6 /object/@attribute = 2
+7 //arritem/*/@idx[3] = 'literal'
+8 abc/lang['test']=2

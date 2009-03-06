@@ -1,0 +1,19 @@
+LP 						::= RelativeLP	| AbsoluteLP
+AbsoluteLP 				::= '/' RelativeLP ? 
+							| '//' RelativeLP
+
+RelativeLP 				::= Step RLPopt
+RLPopt					::= '/' Step RelativeLP
+							| '//' Step RelativeLP
+Step					::= QName* Predicate?
+							| '*'
+							| @ QName*
+							| .
+							| ..
+QName					::= [a-z]*
+Predicate				::= '[' Expr ']'
+
+Expr					::= 			
+ 							
+Example:
+	/company//vendor/contact
