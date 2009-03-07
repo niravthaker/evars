@@ -8,10 +8,14 @@
  *******************************************************************************/
 package name.nirav.opath;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import name.nirav.opath.parse.OPathParser;
 import name.nirav.opath.parse.ast.ASTAllTestStep;
@@ -50,11 +54,12 @@ public class OPathInterpreter extends ASTVisitor {
 		return filtered;
 	}
 
-	public void evaluate(String expr, Variable context) {
+	public OPathInterpreter evaluate(String expr, Variable context) {
 		CycleDetector.getInstance().clear();
 		this.context = Arrays.asList(new Variable[] { context });
 		filtered.add(context);
 		interprete(expr);
+		return this;
 	}
 
 	protected void interprete(String expr) {
@@ -64,8 +69,11 @@ public class OPathInterpreter extends ASTVisitor {
 			if (parse == null)
 				break;
 			matchAllDescendants = parse.isMultilevel();
-			if (parse.getType() == StepType.RootContext && matchAllDescendants)
+			if (parse.getType() == StepType.RootContext)
+				CycleDetector.getInstance().clear();
+			if (parse.getType() == StepType.RootContext && matchAllDescendants) {
 				parse = parse.getNext();
+			}
 			parse.accept(this);
 			filtered.clear();
 			for (Variable variable : tempStepList) {
@@ -136,23 +144,83 @@ public class OPathInterpreter extends ASTVisitor {
 
 	}
 
-	protected void matchNodeSet(ASTStep step, Variable var, IMatchingStrategy matchingStrategy) {
-		List<Variable> children = var.getChildren();
-		if (children != null) {
-			for (Variable variable : children) {
-				if (matchingStrategy.match(variable, step)) {
-					if (variable.getValue() != null)
-						CycleDetector.getInstance().acyclicAdd(variable);
-					if (!CycleDetector.getInstance().wasCycleDetected()) {
-						tempStepList.add(variable);
-					} else {
-						CycleDetector.getInstance().clearCycleFlag();
-						return;
+	protected void matchNodeSetIterative(ASTStep step, Variable var,
+			IMatchingStrategy matchingStrategy) {
+		Variable variable = var;
+		Set<Variable> children = new HashSet<Variable>();
+		children.addAll(variable.getChildren());
+		while (children != null && children.size() != 0) {
+			Set<Variable> variables = new HashSet<Variable>();
+			for (Variable var1 : children) {
+				CycleDetector.getInstance().acyclicAdd(var1);
+				if (CycleDetector.getInstance().wasCycleDetected()) {
+					System.out.println("Pruning from : " + buildList(var1));
+					// variables.clear();
+					CycleDetector.getInstance().clearCycleFlag();
+					continue;
+				}
+				if (matchingStrategy.match(var1, step)) {
+					tempStepList.add(var1);
+				}
+				if (matchAllDescendants) {
+					List<Variable> list = var1.getChildren();
+					if (list != null) {
+						variables.addAll(list);
 					}
 				}
-				if (matchAllDescendants && !CycleDetector.getInstance().wasCycleDetected()) {
-					matchNodeSet(step, variable, matchingStrategy);
+			}
+			if (variables != null) {
+				children = new HashSet<Variable>(variables);
+			}
+		}
+	}
+
+	public static String buildList(Variable var1) {
+		List<String> stck = new ArrayList<String>();
+		String name = var1.getName();
+		while (name != null && var1 != null) {
+			stck.add(name);
+			var1 = var1.getParent();
+			if (var1 != null) {
+				if (var1.getValue() != null)
+					name = var1.getName() ;//+ ":" + var1.getValue().getValue();
+				else
+					name = var1.getName();
+			}
+		}
+		Collections.reverse(stck);
+		Iterator<String> elements = stck.iterator();
+		StringBuilder builder = new StringBuilder();
+		while (elements.hasNext()) {
+			String string = (String) elements.next();
+			builder.append(string);
+			if (elements.hasNext())
+				builder.append(" => ");
+		}
+		return builder.toString();
+	}
+
+	protected void matchNodeSet(ASTStep step, Variable var, IMatchingStrategy matchingStrategy) {
+		matchNodeSetIterative(step, var, matchingStrategy);
+		// matchNodeSetRecursive(step, var, matchingStrategy);
+	}
+
+	protected void matchNodeSetRecursive(ASTStep step, Variable var,
+			IMatchingStrategy matchingStrategy) {
+		Set<Variable> children = new HashSet<Variable>(var.getChildren());
+		for (Variable variable : children) {
+			if (matchingStrategy.match(variable, step)) {
+				if (variable.getValue() != null)
+					CycleDetector.getInstance().acyclicAdd(variable);
+				if (!CycleDetector.getInstance().wasCycleDetected()) {
+					tempStepList.add(variable);
+				} else {
+					CycleDetector.getInstance().clearCycleFlag();
+					return;
 				}
+			}
+			if (matchAllDescendants && !CycleDetector.getInstance().wasCycleDetected()) {
+				matchNodeSet(step, variable, matchingStrategy);
 			}
 		}
 	}
