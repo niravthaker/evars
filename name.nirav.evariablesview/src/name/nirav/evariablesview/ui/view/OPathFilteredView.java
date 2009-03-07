@@ -37,9 +37,9 @@ import org.eclipse.ui.part.ViewPart;
 public class OPathFilteredView extends ViewPart {
 	private TreeViewer viewer;
 	private DrillDownAdapter drillDownAdapter;
-	private Action action1;
+	private Action autoExpandAction;
 	private Action doubleClickAction;
-	private boolean autoExpand = true;
+	private boolean autoExpand = false;
 
 	/**
 	 * The constructor.
@@ -93,21 +93,21 @@ public class OPathFilteredView extends ViewPart {
 	}
 
 	private void fillLocalToolBar(IToolBarManager manager) {
-		manager.add(action1);
+		manager.add(autoExpandAction);
 		manager.add(new Separator());
 		drillDownAdapter.addNavigationActions(manager);
 	}
 
 	private void makeActions() {
-		action1 = new Action() {
+		autoExpandAction = new Action() {
 			public void run() {
-				setAutoExpand(action1.isChecked());
+				setAutoExpand(autoExpandAction.isChecked());
 			}
 		};
 		// action1.setText("Auto Collapse");
-		action1.setToolTipText("Auto Expand all variables");
-		action1.setChecked(isAutoExpand());
-		action1.setImageDescriptor(Activator.getImageDescriptor("icons/expandall.gif"));
+		autoExpandAction.setToolTipText("Auto Expand all variables");
+		autoExpandAction.setChecked(isAutoExpand());
+		autoExpandAction.setImageDescriptor(Activator.getImageDescriptor("icons/expandall.gif"));
 
 		doubleClickAction = new Action() {
 			public void run() {
