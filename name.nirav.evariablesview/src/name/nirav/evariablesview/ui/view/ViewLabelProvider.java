@@ -38,10 +38,11 @@ class ViewLabelProvider extends LabelProvider {
 					for (Variable variable : variables) {
 						builder.append(variable.getValue().getValue());
 					}
+					return var.getName() + " = " + builder.toString() + " (char[])"  ;
 				} 
 			} catch (Exception e) {
 			}
-			return var.getName() + " = " + var.getValue().toString();
+			return var.getName() + " = " + var.getValue().toString() + " (" + var.getType() +")";
 		}
 		return obj.toString();
 	}
