@@ -76,11 +76,7 @@ public class DebugVariable extends Variable {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((jdiValue == null) ? 0 : jdiValue.hashCode());
-		result = prime * result + ((var == null) ? 0 : var.hashCode());
-		return result;
+		return ((var == null) ? 0 : var.hashCode());
 	}
 
 	@Override
@@ -92,15 +88,17 @@ public class DebugVariable extends Variable {
 		if (getClass() != obj.getClass())
 			return false;
 		DebugVariable other = (DebugVariable) obj;
-		if (jdiValue == null) {
-			if (other.jdiValue != null)
-				return false;
-		} else if (!jdiValue.equals(other.jdiValue))
-			return false;
+//		if (jdiValue == null) {
+//			if (other.jdiValue != null)
+//				return false;
+//		} else if (!jdiValue.equals(other.jdiValue))
+//			return false;
 		if (var == null) {
 			if (other.var != null)
 				return false;
-		} else if (!var.equals(other.var))
+		} else if (var.hashCode() != other.var.hashCode())
+			return false;
+		if (!var.equals(other.var))
 			return false;
 		return true;
 	}
