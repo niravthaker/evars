@@ -182,10 +182,7 @@ public class OPathInterpreter extends ASTVisitor {
 			stck.add(name);
 			var1 = var1.getParent();
 			if (var1 != null) {
-				if (var1.getValue() != null)
-					name = var1.getName() ;//+ ":" + var1.getValue().getValue();
-				else
-					name = var1.getName();
+				name = var1.getName() ;//+ ":" + var1.getValue().getValue();
 			}
 		}
 		Collections.reverse(stck);
@@ -204,7 +201,7 @@ public class OPathInterpreter extends ASTVisitor {
 		matchNodeSetIterative(step, var, matchingStrategy);
 		// matchNodeSetRecursive(step, var, matchingStrategy);
 	}
-
+	/*
 	protected void matchNodeSetRecursive(ASTStep step, Variable var,
 			IMatchingStrategy matchingStrategy) {
 		Set<Variable> children = new HashSet<Variable>(var.getChildren());
@@ -224,5 +221,5 @@ public class OPathInterpreter extends ASTVisitor {
 			}
 		}
 	}
-
+	 */
 }
