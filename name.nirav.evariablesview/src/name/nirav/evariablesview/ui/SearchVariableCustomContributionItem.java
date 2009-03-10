@@ -151,13 +151,13 @@ public class SearchVariableCustomContributionItem extends ControlContribution {
 						if (opathView.isAutoExpand())
 							opathView.getViewer().expandAll();
 					} catch (PartInitException e) {
-						e.printStackTrace();
+						Activator.log(e);
 						Activator.log(e);
 					}
 				}
 			});
 		} catch (RuntimeException e) {
-			e.printStackTrace();
+			Activator.log(e);
 			opathView.getViewer().setInput(null);
 		}
 	}

@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import name.nirav.evariablesview.Activator;
 import name.nirav.evariablesview.core.serializable.java.DebugVariable;
 
 import org.eclipse.debug.core.DebugException;
@@ -76,7 +77,7 @@ public class ObjectGraphBuilder {
 			root = DebugVariable.create(var);
 			varList.add(root);
 		} catch (DebugException e) {
-			e.printStackTrace();
+			Activator.log(e);
 		}
 	}
 

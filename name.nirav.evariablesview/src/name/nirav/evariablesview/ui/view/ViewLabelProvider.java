@@ -81,7 +81,7 @@ class ViewLabelProvider extends LabelProvider {
 				cache.put(icoName, image);
 				return image;
 			} catch (DebugException e) {
-				e.printStackTrace();
+				Activator.log(e);
 			}
 		}
 		return null;

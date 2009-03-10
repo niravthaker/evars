@@ -95,7 +95,7 @@ public class LoadBinaryVariablesActionDelegate implements IViewActionDelegate {
 			try {
 				variableInDebugger.setValue(variable.getValue().getValue().toString());
 			} catch (DebugException e) {
-				e.printStackTrace();
+				Activator.log(e);
 			}
 	}
 

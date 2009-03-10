@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import name.nirav.evariablesview.Activator;
 import name.nirav.evariablesview.core.serializable.java.DebugVariable;
 import name.nirav.evariablesview.core.util.ObjectGraphBuilder;
 import name.nirav.opath.OPathInterpreter;
@@ -115,7 +116,7 @@ public class OPathSearchFilter {
 			interpreterJob.schedule();
 			interpreterJob.join();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			Activator.log(e);
 		}
 		return evaluate;
 	}

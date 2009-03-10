@@ -68,7 +68,7 @@ public class SaveVariablesBinaryAction implements IViewActionDelegate {
 		try {
 			SerializerUtils.serialize(file, varList2);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Activator.log(e);
 			IStatus status = Activator.getErrorStatus(e);
 			ErrorDialog.openError(vview.getSite().getShell(), "Variables save failed",
 					"Failed to save variables to file", status);

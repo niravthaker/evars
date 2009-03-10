@@ -11,6 +11,7 @@ package name.nirav.evariablesview.core.serializable.java;
 import java.util.Collections;
 import java.util.List;
 
+import name.nirav.evariablesview.Activator;
 import name.nirav.opath.Value;
 import name.nirav.opath.Variable;
 
@@ -37,7 +38,7 @@ public class DebugVariable extends Variable {
 				setValue(new DebugValue(jdiValue, this));
 			}
 		} catch (DebugException e) {
-			e.printStackTrace();
+			Activator.log(e);
 		}
 	}
 
@@ -56,7 +57,7 @@ public class DebugVariable extends Variable {
 			return this.jdiValue != null && this.jdiValue.getVariables() != null
 					&& this.jdiValue.getVariables().length != 0;
 		} catch (DebugException e) {
-			e.printStackTrace();
+			Activator.log(e);
 		}
 		return false;
 	}
@@ -69,7 +70,7 @@ public class DebugVariable extends Variable {
 		try {
 			return var.getJavaType().getName();
 		} catch (DebugException e) {
-			e.printStackTrace();
+			Activator.log(e);
 		}
 		return var;
 	}
@@ -110,7 +111,7 @@ public class DebugVariable extends Variable {
 				return var.getName();
 			}
 		} catch (DebugException e) {
-			e.printStackTrace();
+			Activator.log(e);
 		}
 		return super.toString();
 	}

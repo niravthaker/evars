@@ -12,6 +12,8 @@ import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
+import name.nirav.evariablesview.Activator;
+
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.jdt.internal.debug.core.model.JDIArrayValue;
@@ -88,7 +90,7 @@ public class ValueFactory {
 					return value.getFloatValue();
 				}
 			} catch (DebugException e) {
-				e.printStackTrace();
+				Activator.log(e);
 			}
 			return null;
 		}
@@ -126,9 +128,9 @@ public class ValueFactory {
 					clazz = Class.forName(className);
 				return Array.newInstance(clazz, value.getArrayLength());
 			} catch (DebugException e) {
-				e.printStackTrace();
+				Activator.log(e);
 			} catch (Exception e) {
-				e.printStackTrace();
+				Activator.log(e);
 			}
 			return null;
 		}

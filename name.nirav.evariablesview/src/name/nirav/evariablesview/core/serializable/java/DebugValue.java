@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import name.nirav.evariablesview.Activator;
 import name.nirav.opath.Value;
 import name.nirav.opath.Variable;
 
@@ -41,7 +42,7 @@ public class DebugValue extends Value {
 		try {
 			return value.getValueString();
 		} catch (DebugException e) {
-			e.printStackTrace();
+			Activator.log(e);
 		}
 		return null;
 	}
@@ -66,7 +67,7 @@ public class DebugValue extends Value {
 				}
 			}
 		} catch (DebugException e) {
-			e.printStackTrace();
+			Activator.log(e);
 		}
 		return lst;
 	}
