@@ -13,5 +13,5 @@ package name.nirav.opath.parse.ast;
  * 
  */
 public enum StepType {
-	AllTest, QName, Current, Parent, RootContext, Start, AttributeTest, Predicate
+	AllTest, QName, Current, Parent, SlashStep, Start, AttributeTest, Predicate
 }

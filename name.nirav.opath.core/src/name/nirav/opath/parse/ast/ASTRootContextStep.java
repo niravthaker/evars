@@ -16,7 +16,7 @@ public class ASTRootContextStep extends ASTStep {
 
 	@Override
 	public StepType getType() {
-		return StepType.RootContext;
+		return StepType.SlashStep;
 	}
 
 	@Override
