@@ -13,7 +13,20 @@ Step					::= QName* Predicate?
 QName					::= [a-z]*
 Predicate				::= '[' Expr ']'
 
-Expr					::= 			
+Expr					::= Method Invocation 
+							| EqualsExpr ExprOpt
+ 							
+ExprOpt					::= '==' EqualsExpr ExprOpt
+							| '!=' EqualsExpr ExprOpt
+							
+EqualsExpr				::= RelExpr EqExprOpt
+
+EqExprOpt				::= '<' RelExpr EqualsExpr 
+							| '>' RelExpr EqualsExpr
+RelExpr					::= <digit> | <literal>
+Method Invocation		::= '#' QName
+
+ 							
  							
 Example:
 	/company//vendor/contact
