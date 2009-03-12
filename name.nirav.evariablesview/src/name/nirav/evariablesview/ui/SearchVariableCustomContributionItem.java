@@ -100,7 +100,7 @@ public class SearchVariableCustomContributionItem extends ControlContribution {
 			@Override
 			public void focusLost(FocusEvent e) {
 				searchTextBox.setForeground(oofColor);
-				if (searchTextBox.getText() != null && searchTextBox.getText().trim().isEmpty()) {
+				if (searchTextBox.getText() != null && searchTextBox.getText().trim().length() != 0) {
 					setSearchText(searchTextBox, TEXT_SEARCH);
 				}
 			}

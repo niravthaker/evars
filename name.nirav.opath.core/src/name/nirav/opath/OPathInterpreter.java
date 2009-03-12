@@ -44,7 +44,6 @@ public class OPathInterpreter extends ASTVisitor {
 	}
 
 	public static final class SimpleNameMatcher implements IMatchingStrategy {
-		@Override
 		public boolean match(Variable var, ASTStep step) {
 			return var.getName().equals(step.getQname());
 		}
@@ -95,7 +94,6 @@ public class OPathInterpreter extends ASTVisitor {
 		tempStepList.clear();
 		for (Variable var : this.filtered) {
 			matchNodeSet(step, var, new IMatchingStrategy() {
-				@Override
 				public boolean match(Variable var, ASTStep step) {
 					return true;
 				}
@@ -108,7 +106,6 @@ public class OPathInterpreter extends ASTVisitor {
 		tempStepList.clear();
 		for (Variable var : filtered) {
 			matchNodeSet(step, var, new IMatchingStrategy() {
-				@Override
 				public boolean match(Variable var, ASTStep step) {
 					return var.getName().matches(step.getQname());
 				}

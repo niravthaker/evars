@@ -49,7 +49,7 @@ public class LoadBinaryVariablesActionDelegate implements IViewActionDelegate {
 				SWT.OPEN);
 		dialog.setFilterExtensions(new String[] { "*.bvars" });
 		String fileToOpen = dialog.open();
-		if (fileToOpen != null && !fileToOpen.trim().isEmpty()) {
+		if (fileToOpen != null && fileToOpen.trim().length() != 0) {
 			File file = new File(fileToOpen);
 			if (file.exists()) {
 				try {

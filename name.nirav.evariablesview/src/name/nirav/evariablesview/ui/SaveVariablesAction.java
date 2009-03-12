@@ -41,7 +41,7 @@ public class SaveVariablesAction extends VirtualCopyToClipboardActionDelegate {
 		FileDialog d = new FileDialog(shell, SWT.SAVE);
 		d.setFilterExtensions(new String[] { "*.txt", "*.vars" });
 		String open = d.open();
-		if (open != null && !open.trim().isEmpty()) {
+		if (open != null && open.trim().length() != 0) {
 			File file = new File(open);
 			if (file.exists()) {
 				String message = "The file you selected already exists, overwrite?";

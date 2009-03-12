@@ -21,7 +21,6 @@ public class Scanner {
 	private int pos = 0;
 	private Token currentToken;
 	private Comparator javaIDComparator = new Comparator() {
-		@Override
 		public boolean matches(char ch) {
 			return Character.isJavaIdentifierPart(ch);
 		}
@@ -148,7 +147,6 @@ public class Scanner {
 			case '@':
 				pos++;
 				return createToken(Type.ATR, readAString(new Comparator() {
-					@Override
 					public boolean matches(char ch) {
 						return ch == '/' || ch == '=' ? false : true;
 					}
@@ -177,7 +175,6 @@ public class Scanner {
 			default:
 				if (Character.isDigit(ch)) {
 					return createToken(Type.NUMBER, Integer.parseInt(readAString(new Comparator() {
-						@Override
 						public boolean matches(char ch) {
 							return Character.isDigit(ch);
 						}
