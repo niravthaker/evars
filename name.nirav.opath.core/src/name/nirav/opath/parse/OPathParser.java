@@ -137,7 +137,11 @@ public class OPathParser {
 	}
 
 	private ASTStep buildPredicate(ASTPredicateStep predicate) {
-		Token token = scanner.getCurrentToken();
+		predicate.setExpr(new PredicateExpressionParser(scanner).parse());
+		checkBracketEnd(scanner.getCurrentToken());
+		scanner.moveNext();
+		return predicate;
+		/*
 		switch (token.type) {
 		case LITERAL:
 			Token next = scanner.moveNext();
@@ -165,6 +169,7 @@ public class OPathParser {
 		default:
 			throw new IllegalArgumentException("Invalid predicate expression");
 		}
+		*/
 	}
 
 	private void checkBracketEnd(Token next) {
