@@ -32,9 +32,7 @@ public class Scanner {
 		EQ('='),
 		NEQ("!="),
 		LT('<'),
-		LTE("<="),
 		GT('>'),
-		GTE(">="),
 		STAR('*'),
 		LSQBR('['),
 		RSQBR(']'),
@@ -42,6 +40,7 @@ public class Scanner {
 		DOTDOT(".."),
 		ATR('@'),
 		NUMBER(),
+		MI('#'),
 		LITERAL('\''),
 		QNAME,
 		EOF;
@@ -59,16 +58,6 @@ public class Scanner {
 
 		Type(char c) {
 			this.c = c;
-		}
-
-		Type fromCh(char ch) {
-			Type[] values = values();
-			for (Type type : values) {
-				if (ch == type.c) {
-					return type;
-				}
-			}
-			throw new IllegalArgumentException("Invalid ch :" + ch);
 		}
 
 		@Override
@@ -114,17 +103,11 @@ public class Scanner {
 			Character ch = this.stream.charAt(pos++);
 			switch (ch) {
 			case '>':
-				if (pos < stream.length() && stream.charAt(pos) == '=') {
-					pos++;
-					return createToken(Type.GTE);
-				} else
 					return createToken(Type.GT);
 			case '<':
-				if (pos < stream.length() && stream.charAt(pos) == '=') {
-					pos++;
-					return createToken(Type.LTE);
-				} else
-					return createToken(Type.LT);
+				return createToken(Type.LT);
+			case '#':
+					return createToken(Type.MI);
 			case '=':
 				return createToken(Type.EQ);
 			case '!':

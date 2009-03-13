@@ -61,11 +61,13 @@ public class ScannerTest extends TestCase {
 	public void testMoveNextRelational() {
 		assertEquals(3, countToken(new Scanner("1 > 1 ")));
 		assertEquals(3, countToken(new Scanner("1 < 1 ")));
-		assertEquals(3, countToken(new Scanner("1 >= 1 ")));
-		assertEquals(3, countToken(new Scanner("1 <= 1 ")));
-		assertEquals(5, countToken(new Scanner("3     <       2 >=      1  ")));
+		assertEquals(3, countToken(new Scanner("1 > 1 ")));
+		assertEquals(3, countToken(new Scanner("1 < 1 ")));
+		assertEquals(5, countToken(new Scanner("3     <       2 >      1  ")));
 		assertEquals(3, countToken(new Scanner("2!=2")));
-		assertEquals(6, countToken(new Scanner("1 > 1 <= 23 = 4")));
+		assertEquals(3, countToken(new Scanner("abc#test")));
+		assertEquals(5, countToken(new Scanner("abc[#test]")));
+		assertEquals(6, countToken(new Scanner("1 > 1 < 23 = 4")));
 	}
 
 	private int countToken(Scanner scanner) {
