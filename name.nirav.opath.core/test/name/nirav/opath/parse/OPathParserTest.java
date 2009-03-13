@@ -13,23 +13,23 @@ public class OPathParserTest extends TestCase {
 	@Test
 	public void testParseSteps() throws Exception {
 		try {
-			extracted().parse("/company/vendor/contact").pp();
-			extracted().parse("/company/vendor/contact").pp();
-			extracted().parse("//company/vendor/contact").pp();
-			extracted().parse("/company//vendor/contact").pp();
-			extracted().parse("/company/vendor//contact").pp();
-			extracted().parse("//company//vendor//contact").pp();
+			oparse().parse("/company/vendor/contact").pp();
+			oparse().parse("/company/vendor/contact").pp();
+			oparse().parse("//company/vendor/contact").pp();
+			oparse().parse("/company//vendor/contact").pp();
+			oparse().parse("/company/vendor//contact").pp();
+			oparse().parse("//company//vendor//contact").pp();
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
 		try {
-			extracted().parse("/+/company////vendor/////contact");
+			oparse().parse("/+/company////vendor/////contact");
 			fail("Parsed Invalid");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
-			extracted().parse("company/vendor/contact").pp();
+			oparse().parse("company/vendor/contact").pp();
 		} catch (Exception e) {
 			fail("Parse failed");
 		}
@@ -37,22 +37,22 @@ public class OPathParserTest extends TestCase {
 
 	@Test
 	public void testFullSteps() {
-		extracted().parse("//*/*/test").pp();
+		oparse().parse("//*/*/test").pp();
 		try {
-			extracted().parse("//**/test");
+			oparse().parse("//**/test");
 			fail("Parsed invalid");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
-			extracted().parse("//*/@test").pp();
-			extracted().parse("//iamright/@*").pp();
+			oparse().parse("//*/@test").pp();
+			oparse().parse("//iamright/@*").pp();
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Didn't parse valid");
 		}
 		try {
-			extracted().parse("//*/@@test").pp();
+			oparse().parse("//*/@@test").pp();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -62,49 +62,53 @@ public class OPathParserTest extends TestCase {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		extracted().parse("/author").pp();
-		extracted().parse("bookstore//book/excerpt//emph").pp();
-		extracted().parse("bookstore/*/title").pp();
-		extracted().parse("*/*").pp();
-		extracted().parse("/*/*/*/BBB").pp();
-		extracted().parse("@style").pp();
-		extracted().parse("price/@exchange").pp();
-		extracted().parse("@*").pp();
-		extracted().parse("//*").pp();
-		extracted().parse("./../*").pp();
-		extracted().parse("/author/book/../@test").pp();
+		oparse().parse("/author").pp();
+		oparse().parse("bookstore//book/excerpt//emph").pp();
+		oparse().parse("bookstore/*/title").pp();
+		oparse().parse("*/*").pp();
+		oparse().parse("/*/*/*/BBB").pp();
+		oparse().parse("@style").pp();
+		oparse().parse("price/@exchange").pp();
+		oparse().parse("@*").pp();
+		oparse().parse("//*").pp();
+		oparse().parse("./../*").pp();
+		oparse().parse("/author/book/../@test").pp();
 	}
 
 	@Test
 	public void testPredicates() {
-		extracted().parse(new Scanner(), "author[1]").pp();
-		extracted().parse(new Scanner(), "author/at[2]").pp();
-		extracted().parse(new Scanner(), "//author/at[0221]").pp();
-		extracted().parse(new Scanner(), "//author/at['index']").pp();
+		oparse().parse(new Scanner(), "author[1]").pp();
+		oparse().parse(new Scanner(), "author/at[2]").pp();
+		oparse().parse(new Scanner(), "//author/at[0221]").pp();
+		oparse().parse(new Scanner(), "//author/at['index']").pp();
 		try {
-			extracted().parse(new Scanner(), "//author/at[2").pp();
+			oparse().parse(new Scanner(), "//author/at[2").pp();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
 
-			extracted().parse(new Scanner(), "//author/at['index]").pp();
+			oparse().parse(new Scanner(), "//author/at['index]").pp();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
 
-			extracted().parse(new Scanner(), "//author/at[/@index]").pp();
+			oparse().parse(new Scanner(), "//author/at[/@index]").pp();
 			fail("Invalid predicate literal parsed");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		extracted().parse(new Scanner(), "/author/revise['index']/divide").pp();
-		extracted().parse(new Scanner(), "/author[index]/divide").pp();
-		extracted().parse(new Scanner(), "author[index]").pp();
+		oparse().parse(new Scanner(), "/author/revise['index']/divide").pp();
+		oparse().parse(new Scanner(), "/author[index]/divide").pp();
+		oparse().parse(new Scanner(), "author[index]").pp();
+	}
+	@Test
+	public void testPredicateExtensions() {
+		oparse().parse("/author/revise[id=5]/divide").pp();
 	}
 
-	private OPathParser extracted() {
+	private OPathParser oparse() {
 		pathParser = new OPathParser();
 		return pathParser;
 	}

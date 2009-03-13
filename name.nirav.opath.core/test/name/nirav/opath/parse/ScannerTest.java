@@ -67,7 +67,8 @@ public class ScannerTest extends TestCase {
 		assertEquals(3, countToken(new Scanner("2!=2")));
 		assertEquals(3, countToken(new Scanner("abc#test")));
 		assertEquals(5, countToken(new Scanner("abc[#test]")));
-		assertEquals(6, countToken(new Scanner("1 > 1 < 23 = 4")));
+		assertEquals(7, countToken(new Scanner("abc[#test > 2]")));
+		assertEquals(7, countToken(new Scanner("1 > 1 < 23 = 4")));
 	}
 
 	private int countToken(Scanner scanner) {
