@@ -149,11 +149,10 @@ public class Scanner {
 			case '\t':
 			case '\r':
 			case '\n':
-				while (pos < stream.length() && Character.isWhitespace((stream.charAt(pos++))))
-					;
+				while (pos < stream.length() && Character.isWhitespace((stream.charAt(pos))))
+					pos++;
 				if (pos >= stream.length())
 					throw new RuntimeException("EOF");
-				pos--;
 				break;
 			default:
 				if (Character.isDigit(ch)) {
