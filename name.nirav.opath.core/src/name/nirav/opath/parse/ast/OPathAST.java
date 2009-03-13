@@ -61,11 +61,6 @@ public class OPathAST {
 		return step;
 	}
 
-//	public static ASTStep createStep(StepType type, ASTStep prevStep, String qname) {
-//		ASTStep step = createStep(type, prevStep);
-//		step.setQname(qname);
-//		return step;
-//	}
 	public static ASTPredicateStep createPredicateStep(ASTStep step) {
 		ASTPredicateStep predicateStep = new ASTPredicateStep();
 		step.setNext(predicateStep);
