@@ -148,7 +148,6 @@ public class SearchVariableCustomContributionItem extends ControlContribution {
 											"name.nirav.evariablesview.views.OPathFilteredView");
 						opathView.setInput(filtered);
 						searchTextBox.setFocus();
-						searchTextBox.setText(searchText);
 						if (opathView.isAutoExpand())
 							opathView.getViewer().expandAll();
 					} catch (PartInitException e) {
