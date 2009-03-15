@@ -68,7 +68,7 @@ public class DebugVariable extends Variable {
 
 	public Object getType() {
 		try {
-			return var.getJavaType().getName();
+			return var.getJavaType() == null ? null : var.getJavaType().getName();
 		} catch (DebugException e) {
 			Activator.log(e);
 		}

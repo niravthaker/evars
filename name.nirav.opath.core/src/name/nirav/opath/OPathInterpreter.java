@@ -68,7 +68,7 @@ public class OPathInterpreter extends ASTVisitor {
 			if (parse == null)
 				break;
 			matchAllDescendants = parse.isMultilevel();
-			if (parse.getType() == StepType.SlashStep)
+			if (parse.getType() == StepType.SlashStep || parse.getType() == StepType.Predicate)
 				CycleDetector.getInstance().clear();
 			if (parse.getType() == StepType.SlashStep && matchAllDescendants) {
 				parse = parse.getNext();
