@@ -100,7 +100,7 @@ public class SearchVariableCustomContributionItem extends ControlContribution {
 			@Override
 			public void focusLost(FocusEvent e) {
 				searchTextBox.setForeground(oofColor);
-				if (searchTextBox.getText() != null && searchTextBox.getText().trim().length() != 0) {
+				if (searchTextBox.getText() != null && searchTextBox.getText().trim().length() == 0) {
 					setSearchText(searchTextBox, TEXT_SEARCH);
 				}
 			}
@@ -148,10 +148,10 @@ public class SearchVariableCustomContributionItem extends ControlContribution {
 											"name.nirav.evariablesview.views.OPathFilteredView");
 						opathView.setInput(filtered);
 						searchTextBox.setFocus();
+						searchTextBox.setText(searchText);
 						if (opathView.isAutoExpand())
 							opathView.getViewer().expandAll();
 					} catch (PartInitException e) {
-						Activator.log(e);
 						Activator.log(e);
 					}
 				}
