@@ -6,20 +6,37 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  *******************************************************************************/
-package name.nirav.opath.parse.ast;
+package name.nirav.opath.parse.ast.expr;
 
 
 /**
  * @author Nirav Thaker
- *
+ * 
  */
-public class NotEqualsExpression extends EqualsExpression {
+public class EqualsExpression extends Expression {
 
-	public NotEqualsExpression(Expression lhs, Expression rhs) {
-		super(lhs, rhs);
+	private final Expression lhs;
+	private final Expression rhs;
+
+	public EqualsExpression(Expression expr, Expression rhs) {
+		this.lhs = expr;
+		this.rhs = rhs;
+	}
+
+	public Expression getLeftHandSide() {
+		return lhs;
+	}
+
+	public Expression getRightHandSide() {
+		return rhs;
 	}
 	@Override
 	public String toString() {
-		return getLeftHandSide() + " != " + getRightHandSide();
+		return lhs + " = " + rhs;
+	}
+
+	@Override
+	public void accept(ExpressionVisitor visitor) {
+		visitor.visit(this);
 	}
 }

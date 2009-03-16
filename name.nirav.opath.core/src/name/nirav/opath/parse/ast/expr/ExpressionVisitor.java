@@ -6,32 +6,20 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  *******************************************************************************/
-package name.nirav.opath.parse.ast;
+package name.nirav.opath.parse.ast.expr;
 
 
 /**
  * @author Nirav Thaker
- * 
+ *
  */
-public class EqualsExpression extends Expression {
-
-	private final Expression lhs;
-	private final Expression rhs;
-
-	public EqualsExpression(Expression expr, Expression rhs) {
-		this.lhs = expr;
-		this.rhs = rhs;
-	}
-
-	public Expression getLeftHandSide() {
-		return lhs;
-	}
-
-	public Expression getRightHandSide() {
-		return rhs;
-	}
-	@Override
-	public String toString() {
-		return lhs + " = " + rhs;
-	}
+public interface ExpressionVisitor {
+	public void visit(EqualsExpression expr);
+	public void visit(NotEqualsExpression expr);
+	public void visit(GreaterThanExpression expr);
+	public void visit(LessThanExpression expr);
+	public void visit(LiteralExpression expr);
+	public void visit(MethodInvocationExpression expr);
+	public void visit(NumberExpression expr);
+	public void visit(QNameExpression expr);
 }

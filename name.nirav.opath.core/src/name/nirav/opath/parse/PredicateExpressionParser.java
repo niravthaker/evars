@@ -10,15 +10,15 @@ package name.nirav.opath.parse;
 
 import name.nirav.opath.parse.Scanner.Token;
 import name.nirav.opath.parse.Scanner.Type;
-import name.nirav.opath.parse.ast.EqualsExpression;
-import name.nirav.opath.parse.ast.Expression;
-import name.nirav.opath.parse.ast.GreaterThanExpression;
-import name.nirav.opath.parse.ast.LessThanExpression;
-import name.nirav.opath.parse.ast.LiteralExpression;
-import name.nirav.opath.parse.ast.MethodInvocationExpression;
-import name.nirav.opath.parse.ast.NotEqualsExpression;
-import name.nirav.opath.parse.ast.NumberExpression;
-import name.nirav.opath.parse.ast.QNameExpression;
+import name.nirav.opath.parse.ast.expr.EqualsExpression;
+import name.nirav.opath.parse.ast.expr.Expression;
+import name.nirav.opath.parse.ast.expr.GreaterThanExpression;
+import name.nirav.opath.parse.ast.expr.LessThanExpression;
+import name.nirav.opath.parse.ast.expr.LiteralExpression;
+import name.nirav.opath.parse.ast.expr.MethodInvocationExpression;
+import name.nirav.opath.parse.ast.expr.NotEqualsExpression;
+import name.nirav.opath.parse.ast.expr.NumberExpression;
+import name.nirav.opath.parse.ast.expr.QNameExpression;
 
 /**
  * @author Nirav Thaker

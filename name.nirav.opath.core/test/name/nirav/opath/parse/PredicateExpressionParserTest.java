@@ -9,12 +9,12 @@
 package name.nirav.opath.parse;
 
 import junit.framework.TestCase;
-import name.nirav.opath.parse.ast.EqualsExpression;
-import name.nirav.opath.parse.ast.Expression;
-import name.nirav.opath.parse.ast.GreaterThanExpression;
-import name.nirav.opath.parse.ast.LessThanExpression;
-import name.nirav.opath.parse.ast.MethodInvocationExpression;
-import name.nirav.opath.parse.ast.NotEqualsExpression;
+import name.nirav.opath.parse.ast.expr.EqualsExpression;
+import name.nirav.opath.parse.ast.expr.Expression;
+import name.nirav.opath.parse.ast.expr.GreaterThanExpression;
+import name.nirav.opath.parse.ast.expr.LessThanExpression;
+import name.nirav.opath.parse.ast.expr.MethodInvocationExpression;
+import name.nirav.opath.parse.ast.expr.NotEqualsExpression;
 
 import org.junit.Test;
 

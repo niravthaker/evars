@@ -6,25 +6,22 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  *******************************************************************************/
-package name.nirav.opath.parse.ast;
+package name.nirav.opath.parse.ast.expr;
+
+
 
 /**
  * @author Nirav Thaker
- * 
+ *
  */
-public abstract class Expression {
+public class QNameExpression extends Expression {
 
-	protected Object value;
-
-	public Expression(Object value) {
-		this.value = value;
+	public QNameExpression(Object value) {
+		super(value);
 	}
-
-	public Expression() {
-	}
-	
 	@Override
-	public String toString() {
-		return value.toString();
+	public void accept(ExpressionVisitor visitor) {
+		visitor.visit(this);
 	}
+
 }
