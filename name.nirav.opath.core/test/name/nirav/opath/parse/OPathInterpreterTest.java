@@ -146,10 +146,25 @@ public class OPathInterpreterTest extends TestCase {
 		value.addVariable(new Variable("[5]", a));
 		Variable var6 = new Variable("[6]", a);
 		value.addVariable(var6);
+//		value = new Value();
+//		var6.setValue(value);
+		Variable name = new Variable("name",var6);
+		value.addVariable(name);
+		
 
-		intr.evaluate("a/[6]", frame);
+		intr.evaluate("a[6]", frame);
 		Collection<Variable> result = intr.getResult();
 		assertEquals(1, result.size());
 		assertEquals(var6, result.toArray()[0]);
+		
+		intr.evaluate("a/[6]", frame);
+		result = intr.getResult();
+		assertEquals(1, result.size());
+		assertEquals(var6, result.toArray()[0]);
+		
+		intr.evaluate("a[name]", frame);
+		result = intr.getResult();
+		assertEquals(1, result.size());
+		assertEquals(name, result.toArray()[0]);
 	}
 }
