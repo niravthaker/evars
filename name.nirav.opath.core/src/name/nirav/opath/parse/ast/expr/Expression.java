@@ -14,10 +14,10 @@ package name.nirav.opath.parse.ast.expr;
  */
 public abstract class Expression {
 
-	protected Object value;
+	private Object value;
 
 	public Expression(Object value) {
-		this.value = value;
+		this.setValue(value);
 	}
 
 	public Expression() {
@@ -27,6 +27,14 @@ public abstract class Expression {
 
 	@Override
 	public String toString() {
-		return value.toString();
+		return getValue().toString();
+	}
+
+	public void setValue(Object value) {
+		this.value = value;
+	}
+
+	public Object getValue() {
+		return value;
 	}
 }

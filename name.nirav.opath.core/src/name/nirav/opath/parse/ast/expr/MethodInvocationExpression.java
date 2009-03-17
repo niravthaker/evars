@@ -20,7 +20,7 @@ public class MethodInvocationExpression extends Expression {
 	
 	@Override
 	public String toString() {
-		return " # " + value;
+		return " # " + getValue();
 	}
 	@Override
 	public void accept(ExpressionVisitor visitor) {
