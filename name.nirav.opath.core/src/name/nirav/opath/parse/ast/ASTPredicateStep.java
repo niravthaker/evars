@@ -8,15 +8,17 @@
  *******************************************************************************/
 package name.nirav.opath.parse.ast;
 
+import name.nirav.opath.parse.ast.expr.Expression;
+
 
 
 public class ASTPredicateStep extends ASTStep {
-	private Object expr;
-	public void setExpr(Object expr) {
+	private Expression expr;
+	public void setExpr(Expression expr) {
 		this.expr = expr;
 	}
 	
-	public Object getExpr() {
+	public Expression getExpr() {
 		return expr;
 	}
 
