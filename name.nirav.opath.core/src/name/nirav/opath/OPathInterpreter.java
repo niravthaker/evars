@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Stack;
 
 import name.nirav.opath.parse.OPathParser;
 import name.nirav.opath.parse.ast.ASTAllTestStep;
@@ -27,17 +27,29 @@ import name.nirav.opath.parse.ast.ASTQNameStep;
 import name.nirav.opath.parse.ast.ASTStep;
 import name.nirav.opath.parse.ast.ASTVisitor;
 import name.nirav.opath.parse.ast.StepType;
+import name.nirav.opath.parse.ast.expr.EqualsExpression;
+import name.nirav.opath.parse.ast.expr.Expression;
+import name.nirav.opath.parse.ast.expr.ExpressionVisitor;
+import name.nirav.opath.parse.ast.expr.GreaterThanExpression;
+import name.nirav.opath.parse.ast.expr.LessThanExpression;
+import name.nirav.opath.parse.ast.expr.LiteralExpression;
+import name.nirav.opath.parse.ast.expr.MethodInvocationExpression;
+import name.nirav.opath.parse.ast.expr.NotEqualsExpression;
+import name.nirav.opath.parse.ast.expr.NumberExpression;
+import name.nirav.opath.parse.ast.expr.QNameExpression;
 
 /**
  * 
  * 
  */
-public class OPathInterpreter extends ASTVisitor {
+public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 	private static final SimpleNameMatcher SIMPLE_NAME_MATCHER = new SimpleNameMatcher();
 	protected Collection<? extends Variable> context;
-	protected Collection<Variable> filtered = new HashSet<Variable>();
-	protected Collection<Variable> tempStepList = new HashSet<Variable>();
+	protected Collection<Variable> filtered;
+	protected Collection<Variable> tempStepList;
 	private boolean matchAllDescendants;
+	private Variable predicateContext;
+	private Stack<Boolean> exprResultStack;
 
 	interface IMatchingStrategy {
 		public boolean match(Variable var, ASTStep step);
@@ -55,6 +67,9 @@ public class OPathInterpreter extends ASTVisitor {
 
 	public OPathInterpreter evaluate(String expr, Variable context) {
 		CycleDetector.getInstance().clear();
+		filtered = new LinkedList<Variable>();
+		tempStepList = new LinkedList<Variable>();
+		this.exprResultStack = new Stack<Boolean>();
 		this.context = Arrays.asList(new Variable[] { context });
 		filtered.add(context);
 		interprete(expr);
@@ -73,10 +88,23 @@ public class OPathInterpreter extends ASTVisitor {
 			if (parse.getType() == StepType.SlashStep && matchAllDescendants) {
 				parse = parse.getNext();
 			}
+			Expression pExpr = null;
+			if (parse.getType() == StepType.Predicate) {
+				pExpr = ((ASTPredicateStep) parse).getExpr();
+			}
 			parse.accept(this);
 			filtered.clear();
 			for (Variable variable : tempStepList) {
-				filtered.add(variable);
+				this.predicateContext = variable;
+				if (pExpr == null) {
+					filtered.add(variable);
+				} else {
+					pExpr.accept(this);
+					Boolean pop = this.exprResultStack.pop();
+					if (pop.booleanValue()) {
+						filtered.add(variable);
+					}
+				}
 			}
 		}
 	}
@@ -132,22 +160,23 @@ public class OPathInterpreter extends ASTVisitor {
 
 	@Override
 	public void visit(ASTPredicateStep step) {
-		if (step.getQname().startsWith("[")) {
-			tempStepList.clear();
-			for (Variable var : this.filtered) {
-				matchNodeSet(step, var, SIMPLE_NAME_MATCHER);
-			}
+		tempStepList.clear();
+		for (Variable var : this.filtered) {
+			matchNodeSet(step, var, new IMatchingStrategy() {
+				public boolean match(Variable var, ASTStep step) {
+					return true;
+				}
+			});
 		}
-
 	}
 
 	protected void matchNodeSetIterative(ASTStep step, Variable var,
 			IMatchingStrategy matchingStrategy) {
 		Variable variable = var;
-		Set<Variable> children = new HashSet<Variable>();
+		List<Variable> children = new LinkedList<Variable>();
 		children.addAll(variable.getChildren());
 		while (children != null && children.size() != 0) {
-			Set<Variable> variables = new HashSet<Variable>();
+			List<Variable> variables = new LinkedList<Variable>();
 			for (Variable var1 : children) {
 				CycleDetector.getInstance().acyclicAdd(var1);
 				if (CycleDetector.getInstance().wasCycleDetected()) {
@@ -167,7 +196,7 @@ public class OPathInterpreter extends ASTVisitor {
 				}
 			}
 			if (variables != null) {
-				children = new HashSet<Variable>(variables);
+				children = new LinkedList<Variable>(variables);
 			}
 		}
 	}
@@ -179,7 +208,7 @@ public class OPathInterpreter extends ASTVisitor {
 			stck.add(name);
 			var1 = var1.getParent();
 			if (var1 != null) {
-				name = var1.getName() ;//+ ":" + var1.getValue().getValue();
+				name = var1.getName();// + ":" + var1.getValue().getValue();
 			}
 		}
 		Collections.reverse(stck);
@@ -198,25 +227,68 @@ public class OPathInterpreter extends ASTVisitor {
 		matchNodeSetIterative(step, var, matchingStrategy);
 		// matchNodeSetRecursive(step, var, matchingStrategy);
 	}
+
 	/*
-	protected void matchNodeSetRecursive(ASTStep step, Variable var,
-			IMatchingStrategy matchingStrategy) {
-		Set<Variable> children = new HashSet<Variable>(var.getChildren());
-		for (Variable variable : children) {
-			if (matchingStrategy.match(variable, step)) {
-				if (variable.getValue() != null)
-					CycleDetector.getInstance().acyclicAdd(variable);
-				if (!CycleDetector.getInstance().wasCycleDetected()) {
-					tempStepList.add(variable);
-				} else {
-					CycleDetector.getInstance().clearCycleFlag();
-					return;
-				}
-			}
-			if (matchAllDescendants && !CycleDetector.getInstance().wasCycleDetected()) {
-				matchNodeSet(step, variable, matchingStrategy);
+	 * protected void matchNodeSetRecursive(ASTStep step, Variable var,
+	 * IMatchingStrategy matchingStrategy) { Set<Variable> children = new
+	 * HashSet<Variable>(var.getChildren()); for (Variable variable : children)
+	 * { if (matchingStrategy.match(variable, step)) { if (variable.getValue()
+	 * != null) CycleDetector.getInstance().acyclicAdd(variable); if
+	 * (!CycleDetector.getInstance().wasCycleDetected()) {
+	 * tempStepList.add(variable); } else {
+	 * CycleDetector.getInstance().clearCycleFlag(); return; } } if
+	 * (matchAllDescendants && !CycleDetector.getInstance().wasCycleDetected())
+	 * { matchNodeSet(step, variable, matchingStrategy); } } }
+	 */
+
+	public void visit(EqualsExpression expr) {
+		System.out.println(expr);
+	}
+
+	public void visit(NotEqualsExpression expr) {
+		System.out.println(expr);
+	}
+
+	public void visit(GreaterThanExpression expr) {
+		System.out.println(expr);
+	}
+
+	public void visit(LessThanExpression expr) {
+		System.out.println(expr);
+	}
+
+	public void visit(LiteralExpression expr) {
+		System.out.println(expr);
+	}
+
+	public void visit(MethodInvocationExpression expr) {
+		System.out.println(expr);
+	}
+
+	public void visit(NumberExpression expr) {
+		Integer value = (Integer) expr.getValue();
+		Iterator<Variable> iterator = this.tempStepList.iterator();
+		int i = 0;
+		Variable var = null;
+		while (iterator.hasNext()) {
+			Variable tVar = iterator.next();
+			if (i++ == value) {
+				var = tVar;
+				break;
 			}
 		}
+		// Gotta get ordering straight
+		if (this.predicateContext.equals(var))
+			this.exprResultStack.push(Boolean.TRUE);
+		else
+			this.exprResultStack.push(Boolean.FALSE);
 	}
-	 */
+
+	public void visit(QNameExpression expr) {
+		String name = (String) expr.getValue();
+		if (this.predicateContext.getName().equals(name)) {
+			this.exprResultStack.push(Boolean.TRUE);
+		} else
+			this.exprResultStack.push(Boolean.FALSE);
+	}
 }
