@@ -150,7 +150,13 @@ public class OPathInterpreterTest extends TestCase {
 //		var6.setValue(value);
 		Variable name = new Variable("name",var6);
 		value.addVariable(name);
-		
+		value = new Value() {
+			@Override
+			public Object getComparableValue() {
+				return 1;
+			}
+		};
+		name.setValue(value);
 
 		intr.evaluate("a[6]", frame);
 		Collection<Variable> result = intr.getResult();
@@ -166,5 +172,14 @@ public class OPathInterpreterTest extends TestCase {
 		result = intr.getResult();
 		assertEquals(1, result.size());
 		assertEquals(name, result.toArray()[0]);
+
+		intr.evaluate("a[name = 1]", frame);
+		result = intr.getResult();
+		assertEquals(1, result.size());
+		assertEquals(name, result.toArray()[0]);
+
+		intr.evaluate("a[name != 6]", frame);
+		result = intr.getResult();
+		assertEquals(8, result.size());
 	}
 }

@@ -28,7 +28,7 @@ public class QNameExpression extends Expression {
 	@Override
 	public Object evaluate(Variable context) {
 		if(context.getName().equals(getValue()))
-			return context.getValue().getValue();
+			return context.getValue().getComparableValue();
 		return new Object();
 	}
 
