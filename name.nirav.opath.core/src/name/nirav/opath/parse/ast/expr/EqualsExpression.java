@@ -8,6 +8,8 @@
  *******************************************************************************/
 package name.nirav.opath.parse.ast.expr;
 
+import name.nirav.opath.Variable;
+
 
 /**
  * @author Nirav Thaker
@@ -30,13 +32,41 @@ public class EqualsExpression extends Expression {
 	public Expression getRightHandSide() {
 		return rhs;
 	}
+	
 	@Override
 	public String toString() {
-		return lhs + " = " + rhs;
+		return "{" + getLeftHandSide() + "} = {" + getRightHandSide() + "}";
 	}
 
 	@Override
 	public void accept(ExpressionVisitor visitor) {
 		visitor.visit(this);
+	}
+
+	@Override
+	public Object evaluate(Variable context) {
+		Object evaluate = getLeftHandSide().evaluate(context);
+		evaluate = tryParsing(evaluate);
+		Object evaluate2 = getRightHandSide().evaluate(context);
+		evaluate2 = tryParsing(evaluate2);
+		return compare(evaluate, evaluate2);
+	}
+
+	protected Object compare(Object evaluate, Object evaluate2) {
+		if(evaluate instanceof Number && evaluate2 instanceof Number) {
+			return ((Number) evaluate).doubleValue() == ((Number) evaluate2).doubleValue();
+		}
+		return evaluate.equals(evaluate2);
+	}
+
+	protected Object tryParsing(Object evaluate) {
+		if (evaluate instanceof String) {
+			String nm = (String) evaluate;
+			try {
+				evaluate = Long.valueOf(nm);
+			} catch (NumberFormatException e) {
+			}
+		}
+		return evaluate;
 	}
 }

@@ -8,6 +8,7 @@
  *******************************************************************************/
 package name.nirav.opath.parse.ast.expr;
 
+
 /**
  * @author Nirav Thaker
  * 
@@ -19,11 +20,17 @@ public class GreaterThanExpression extends EqualsExpression {
 	}
 	@Override
 	public String toString() {
-		return getLeftHandSide() + " > " + getRightHandSide();
+		return "{" + getLeftHandSide() + "} > {" + getRightHandSide() + "}";
 	}
 	@Override
 	public void accept(ExpressionVisitor visitor) {
 		visitor.visit(this);
+	}
+	protected Object compare(Object evaluate, Object evaluate2) {
+		if (evaluate instanceof Number && evaluate2 instanceof Number) {
+			return ((Number) evaluate).doubleValue() >= ((Number) evaluate2).doubleValue();
+		}
+		return new Object();
 	}
 
 }

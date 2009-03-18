@@ -8,6 +8,8 @@
  *******************************************************************************/
 package name.nirav.opath.parse.ast.expr;
 
+import name.nirav.opath.Variable;
+
 
 
 /**
@@ -22,6 +24,12 @@ public class QNameExpression extends Expression {
 	@Override
 	public void accept(ExpressionVisitor visitor) {
 		visitor.visit(this);
+	}
+	@Override
+	public Object evaluate(Variable context) {
+		if(context.getName().equals(getValue()))
+			return context.getValue().getValue();
+		return new Object();
 	}
 
 }

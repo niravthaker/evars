@@ -8,6 +8,8 @@
  *******************************************************************************/
 package name.nirav.opath.parse.ast.expr;
 
+import name.nirav.opath.Variable;
+
 /**
  * @author Nirav Thaker
  * 
@@ -22,12 +24,13 @@ public abstract class Expression {
 
 	public Expression() {
 	}
-
 	public abstract void accept(ExpressionVisitor visitor);
+
+	public abstract Object evaluate(Variable context);
 
 	@Override
 	public String toString() {
-		return getValue().toString();
+		return "(" + getValue().toString() + ")";
 	}
 
 	public void setValue(Object value) {

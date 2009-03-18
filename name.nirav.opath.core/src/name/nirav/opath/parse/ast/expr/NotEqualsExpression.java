@@ -11,20 +11,29 @@ package name.nirav.opath.parse.ast.expr;
 
 /**
  * @author Nirav Thaker
- *
+ * 
  */
 public class NotEqualsExpression extends EqualsExpression {
 
 	public NotEqualsExpression(Expression lhs, Expression rhs) {
 		super(lhs, rhs);
 	}
+
 	@Override
 	public String toString() {
 		return getLeftHandSide() + " != " + getRightHandSide();
 	}
+
 	@Override
 	public void accept(ExpressionVisitor visitor) {
 		visitor.visit(this);
+	}
+
+	protected Object compare(Object evaluate, Object evaluate2) {
+		if (evaluate instanceof Number && evaluate2 instanceof Number) {
+			return ((Number) evaluate).doubleValue() != ((Number) evaluate2).doubleValue();
+		}
+		return !evaluate.equals(evaluate2);
 	}
 
 }

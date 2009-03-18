@@ -88,23 +88,10 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 			if (parse.getType() == StepType.SlashStep && matchAllDescendants) {
 				parse = parse.getNext();
 			}
-			Expression pExpr = null;
-			if (parse.getType() == StepType.Predicate) {
-				pExpr = ((ASTPredicateStep) parse).getExpr();
-			}
 			parse.accept(this);
 			filtered.clear();
 			for (Variable variable : tempStepList) {
-				this.predicateContext = variable;
-				if (pExpr == null) {
-					filtered.add(variable);
-				} else {
-					pExpr.accept(this);
-					Boolean pop = this.exprResultStack.pop();
-					if (pop.booleanValue()) {
-						filtered.add(variable);
-					}
-				}
+				filtered.add(variable);
 			}
 		}
 	}
@@ -161,12 +148,17 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 	@Override
 	public void visit(ASTPredicateStep step) {
 		tempStepList.clear();
+		Expression pExpr = step.getExpr();
 		for (Variable var : this.filtered) {
-			matchNodeSet(step, var, new IMatchingStrategy() {
-				public boolean match(Variable var, ASTStep step) {
-					return true;
+			List<Variable> children = var.getChildren();
+			for (Variable variable : children) {
+				this.predicateContext = variable;
+				pExpr.accept(this);
+				Boolean pop = this.exprResultStack.pop();
+				if (pop.booleanValue()) {
+					tempStepList.add(variable);
 				}
-			});
+			}
 		}
 	}
 
@@ -242,11 +234,19 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 	 */
 
 	public void visit(EqualsExpression expr) {
-		System.out.println(expr);
+		Object evaluate = expr.evaluate(predicateContext);
+		if (evaluate instanceof Boolean) {
+			this.exprResultStack.push((Boolean) evaluate);
+		} else
+			this.exprResultStack.push(Boolean.TRUE);
 	}
 
 	public void visit(NotEqualsExpression expr) {
-		System.out.println(expr);
+		Object evaluate = expr.evaluate(predicateContext);
+		if (evaluate instanceof Boolean) {
+			this.exprResultStack.push((Boolean) evaluate);
+		} else
+			this.exprResultStack.push(Boolean.TRUE);
 	}
 
 	public void visit(GreaterThanExpression expr) {
@@ -267,18 +267,7 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 
 	public void visit(NumberExpression expr) {
 		Integer value = (Integer) expr.getValue();
-		Iterator<Variable> iterator = this.tempStepList.iterator();
-		int i = 0;
-		Variable var = null;
-		while (iterator.hasNext()) {
-			Variable tVar = iterator.next();
-			if (i++ == value) {
-				var = tVar;
-				break;
-			}
-		}
-		// Gotta get ordering straight
-		if (this.predicateContext.equals(var))
+		if (this.predicateContext.getName().equals("[" + value + "]"))
 			this.exprResultStack.push(Boolean.TRUE);
 		else
 			this.exprResultStack.push(Boolean.FALSE);
@@ -288,7 +277,10 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 		String name = (String) expr.getValue();
 		if (this.predicateContext.getName().equals(name)) {
 			this.exprResultStack.push(Boolean.TRUE);
-		} else
+		}
+		if (exprResultStack.size() == 0) {
 			this.exprResultStack.push(Boolean.FALSE);
+		}
+
 	}
 }

@@ -47,7 +47,9 @@ public class Value {
 		}
 		visitor.exit(this);
 	}
-
+	public Object getComparableValue() {
+		return this.value;
+	}
 	@Override
 	public String toString() {
 		return "val=" + variables;
