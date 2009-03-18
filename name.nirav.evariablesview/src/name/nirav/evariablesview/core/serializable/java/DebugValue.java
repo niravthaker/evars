@@ -20,6 +20,7 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.jdt.debug.core.IJavaModifiers;
+import org.eclipse.jdt.internal.debug.core.model.JDIValue;
 import org.eclipse.jdt.internal.debug.core.model.JDIVariable;
 
 /**
@@ -35,6 +36,24 @@ public class DebugValue extends Value {
 	public DebugValue(IValue value, DebugVariable holder) {
 		this.value = value;
 		this.holder = holder;
+	}
+
+	@Override
+	public Object getComparableValue() {
+		try {
+			if ("char[]".equals(holder.getType())) {
+				IVariable[] variables = value.getVariables();
+				StringBuilder builder = new StringBuilder();
+				for (IVariable variable : variables) {
+					builder.append(((JDIValue) variable.getValue()).getValueString());
+				}
+				return builder.toString();
+			} else
+				return getValue();
+		} catch (DebugException e) {
+			Activator.log(e);
+		}
+		return super.getComparableValue();
 	}
 
 	@Override
@@ -94,7 +113,7 @@ public class DebugValue extends Value {
 				return false;
 		} else if (value.hashCode() != other.value.hashCode())
 			return false;
-		if(!value.equals(other.value))
+		if (!value.equals(other.value))
 			return false;
 		return true;
 	}
