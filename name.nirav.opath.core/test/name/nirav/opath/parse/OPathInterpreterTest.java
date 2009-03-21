@@ -192,5 +192,20 @@ public class OPathInterpreterTest extends TestCase {
 		intr.evaluate("a[name != 6]", frame);
 		result = intr.getResult();
 		assertEquals(8, result.size());
+
+		intr = intr();
+		intr.evaluate("a[name > 0]", frame);
+		result = intr.getResult();
+		assertEquals(1, result.size());
+
+		intr = intr();
+		intr.evaluate("a[name > 2]", frame);
+		result = intr.getResult();
+		assertEquals(0, result.size());
+
+		intr = intr();
+		intr.evaluate("a[name < 2]", frame);
+		result = intr.getResult();
+		assertEquals(1, result.size());
 	}
 }
