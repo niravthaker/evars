@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 import name.nirav.opath.OPathInterpreter;
 import name.nirav.opath.Value;
 import name.nirav.opath.Variable;
+import name.nirav.opath.parse.ast.OPathASTFactory;
 
 import org.junit.Test;
 
@@ -19,32 +20,38 @@ public class OPathInterpreterTest extends TestCase {
 	@Test
 	public void testEvalSteps() {
 		buildTestModel();
-		OPathInterpreter interpreter = new OPathInterpreter();
+		OPathInterpreter interpreter = intr();
 		interpreter.evaluate("a/b", x);
 		Collection<Variable> result = interpreter.getResult();
 		assertEquals(b, result.toArray()[0]);
 
-		interpreter = new OPathInterpreter();
+		interpreter = intr();
 		interpreter.evaluate("a/b/c", x);
 		result = interpreter.getResult();
 		assertEquals(c, result.toArray()[0]);
 
-		interpreter = new OPathInterpreter();
+		interpreter = intr();
 		interpreter.evaluate("//c", x);
 		result = interpreter.getResult();
 		assertEquals(c, result.toArray()[0]);
 
-		interpreter = new OPathInterpreter();
+		interpreter = intr();
 		interpreter.evaluate("a/b//e", x);
 		result = interpreter.getResult();
 		assertEquals(e, result.toArray()[0]);
 
-		interpreter = new OPathInterpreter();
+		interpreter = intr();
 		interpreter.evaluate("a/b//*", x);
 		result = interpreter.getResult();
 		assertEquals(2, result.size());
 		assertTrue(result.contains(c));
 		assertTrue(result.contains(e));
+	}
+
+	private OPathInterpreter intr() {
+		OPathInterpreter pathInterpreter = new OPathInterpreter();
+		pathInterpreter.setASTFactory(OPathASTFactory.getInstance());
+		return pathInterpreter;
 	}
 
 	private void buildTestModel() {
@@ -69,17 +76,17 @@ public class OPathInterpreterTest extends TestCase {
 
 	public void testAllElementsTest() {
 		buildTestModel();
-		OPathInterpreter intr = new OPathInterpreter();
+		OPathInterpreter intr = intr();
 		intr.evaluate("a/*", x);
 		Collection<Variable> result = intr.getResult();
 		assertEquals(b, result.toArray()[0]);
 
-		intr = new OPathInterpreter();
+		intr = intr();
 		intr.evaluate("//a/*", x);
 		result = intr.getResult();
 		assertEquals(b, result.toArray()[0]);
 
-		intr = new OPathInterpreter();
+		intr = intr();
 		intr.evaluate("//*", x);
 		result = intr.getResult();
 		assertEquals(4, result.size());
@@ -87,7 +94,7 @@ public class OPathInterpreterTest extends TestCase {
 
 	public void testAttributeTest() throws Exception {
 		buildTestModel();
-		OPathInterpreter intr = new OPathInterpreter();
+		OPathInterpreter intr = intr();
 		Variable frame = new Variable("frame");
 		Value value = new Value();
 		Variable a = new Variable("a", frame);
@@ -103,12 +110,12 @@ public class OPathInterpreterTest extends TestCase {
 		value.addVariable(new Variable("[5]", a));
 		value.addVariable(new Variable("[6]", a));
 
-		intr = new OPathInterpreter();
+		intr = intr();
 		intr.evaluate("a/@\\[[3-4]\\]", frame);
 		Collection<Variable> result = intr.getResult();
 		assertEquals(2, result.size());
 
-		intr = new OPathInterpreter();
+		intr = intr();
 		intr.evaluate("//@\\[[0-5]\\]", frame);
 		result = intr.getResult();
 		assertEquals(6, result.size());
@@ -116,13 +123,13 @@ public class OPathInterpreterTest extends TestCase {
 
 	public void testCurrentParent() throws Exception {
 		buildTestModel();
-		OPathInterpreter intr = new OPathInterpreter();
+		OPathInterpreter intr = intr();
 		intr.evaluate("//c/../..", x);
 		Collection<Variable> result = intr.getResult();
 		assertEquals(1, result.size());
 		assertEquals(a, result.toArray()[0]);
 
-		intr = new OPathInterpreter();
+		intr = intr();
 		intr.evaluate("//e/.././*", x);
 		result = intr.getResult();
 		assertEquals(1, result.size());
@@ -130,7 +137,7 @@ public class OPathInterpreterTest extends TestCase {
 	}
 
 	public void testPredicates() throws Exception {
-		OPathInterpreter intr = new OPathInterpreter();
+		OPathInterpreter intr = intr();
 		Variable frame = new Variable("frame");
 		Value value = new Value();
 		Variable a = new Variable("a", frame);
@@ -157,27 +164,31 @@ public class OPathInterpreterTest extends TestCase {
 			}
 		};
 		name.setValue(value);
-
+		intr = intr();
 		intr.evaluate("a[6]", frame);
 		Collection<Variable> result = intr.getResult();
 		assertEquals(1, result.size());
 		assertEquals(var6, result.toArray()[0]);
 		
+		intr = intr();
 		intr.evaluate("a/[6]", frame);
 		result = intr.getResult();
 		assertEquals(1, result.size());
 		assertEquals(var6, result.toArray()[0]);
 		
+		intr = intr();
 		intr.evaluate("a[name]", frame);
 		result = intr.getResult();
 		assertEquals(1, result.size());
 		assertEquals(name, result.toArray()[0]);
 
+		intr = intr();
 		intr.evaluate("a[name = 1]", frame);
 		result = intr.getResult();
 		assertEquals(1, result.size());
 		assertEquals(name, result.toArray()[0]);
 
+		intr = intr();
 		intr.evaluate("a[name != 6]", frame);
 		result = intr.getResult();
 		assertEquals(8, result.size());

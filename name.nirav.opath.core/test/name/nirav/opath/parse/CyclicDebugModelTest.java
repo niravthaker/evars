@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 import name.nirav.opath.OPathInterpreter;
 import name.nirav.opath.Value;
 import name.nirav.opath.Variable;
+import name.nirav.opath.parse.ast.OPathASTFactory;
 
 import org.junit.Test;
 
@@ -64,10 +65,17 @@ public class CyclicDebugModelTest extends TestCase {
 		value = new Value();
 		value.addVariable(a);
 		context.setValue(value);
-		
-		Collection<Variable> result = new OPathInterpreter().evaluate("//*", context).getResult();
+
+		Collection<Variable> result = intr().evaluate("//*", context).getResult();
 		assertEquals(9, result.size());
 	}
+
+	private OPathInterpreter intr() {
+		OPathInterpreter pathInterpreter = new OPathInterpreter();
+		pathInterpreter.setASTFactory(OPathASTFactory.getInstance());
+		return pathInterpreter;
+	}
+
 	@Test
 	public void testCyclicGraph2() {
 		Variable a = new Variable("a");
@@ -119,8 +127,8 @@ public class CyclicDebugModelTest extends TestCase {
 		value = new Value();
 		value.addVariable(a);
 		context.setValue(value);
-		
-		Collection<Variable> result = new OPathInterpreter().evaluate("//*", context).getResult();
+
+		Collection<Variable> result = intr().evaluate("//*", context).getResult();
 		assertEquals(9, result.size());
 	}
 }

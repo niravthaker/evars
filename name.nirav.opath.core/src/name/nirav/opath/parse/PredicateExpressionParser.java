@@ -10,15 +10,8 @@ package name.nirav.opath.parse;
 
 import name.nirav.opath.parse.Scanner.Token;
 import name.nirav.opath.parse.Scanner.Type;
-import name.nirav.opath.parse.ast.expr.EqualsExpression;
+import name.nirav.opath.parse.ast.ExpressionFactory;
 import name.nirav.opath.parse.ast.expr.Expression;
-import name.nirav.opath.parse.ast.expr.GreaterThanExpression;
-import name.nirav.opath.parse.ast.expr.LessThanExpression;
-import name.nirav.opath.parse.ast.expr.LiteralExpression;
-import name.nirav.opath.parse.ast.expr.MethodInvocationExpression;
-import name.nirav.opath.parse.ast.expr.NotEqualsExpression;
-import name.nirav.opath.parse.ast.expr.NumberExpression;
-import name.nirav.opath.parse.ast.expr.QNameExpression;
 
 /**
  * @author Nirav Thaker
@@ -27,9 +20,11 @@ import name.nirav.opath.parse.ast.expr.QNameExpression;
 public class PredicateExpressionParser {
 
 	private final Scanner scanner;
+	private final ExpressionFactory factory;
 
-	public PredicateExpressionParser(Scanner scanner) {
+	public PredicateExpressionParser(Scanner scanner, ExpressionFactory factory) {
 		this.scanner = scanner;
+		this.factory = factory;
 	}
 
 	public Expression parse() {
@@ -43,8 +38,7 @@ public class PredicateExpressionParser {
 		case QNAME:
 		case LITERAL:
 		case MI:
-			Expression expr = sExpr();
-			return exprOpt(expr);
+			return exprOpt(sExpr());
 		default:
 			throw new IllegalArgumentException("Found unknown symbol: " + currentToken
 					+ " when expecting one of the following: " + Type.NUMBER + "," + Type.LITERAL
@@ -57,21 +51,21 @@ public class PredicateExpressionParser {
 		switch (currentToken.type) {
 		case NUMBER:
 			scanner.moveNext();
-			return new NumberExpression(currentToken.value);
+			return factory.newNumberExpr(currentToken.value);
 		case QNAME:
 			scanner.moveNext();
-			return new QNameExpression(currentToken.value);
+			return factory.newQNameExpr(currentToken.value);
 		case LITERAL:
 			Token next = scanner.moveNext();
 			if (scanner.moveNext().type != Scanner.Type.LITERAL)
 				throw new IllegalArgumentException("Literal didn't end properly, found : "
 						+ scanner.getCurrentToken());
 			scanner.moveNext();
-			return new LiteralExpression(next.value);
+			return factory.newLiteralExpr(next.value);
 		case MI:
 			Token methodName = scanner.moveNext();
 			scanner.moveNext();
-			return new MethodInvocationExpression(methodName.value);
+			return factory.newMethodInvocationExpr(methodName.value);
 		default:
 			throw new IllegalArgumentException("Found unknown symbol: " + currentToken
 					+ " when expecting one of the following: " + Type.NUMBER + "," + Type.LITERAL
@@ -85,19 +79,19 @@ public class PredicateExpressionParser {
 		case EQ:
 			scanner.moveNext();
 			Expression equalsExpr = sExpr();
-			return exprOpt(new EqualsExpression(expr, equalsExpr));
+			return exprOpt(factory.newEqualsExpr(expr, equalsExpr));
 		case NEQ:
 			scanner.moveNext();
 			Expression notEqualsExpr = sExpr();
-			return exprOpt(new NotEqualsExpression(expr, notEqualsExpr));
+			return exprOpt(factory.newNotEqualsExpr(expr, notEqualsExpr));
 		case LT:
 			scanner.moveNext();
 			Expression ltExpr = sExpr();
-			return exprOpt(new LessThanExpression(expr, ltExpr));
+			return exprOpt(factory.newLessThanExpr(expr, ltExpr));
 		case GT:
 			scanner.moveNext();
 			Expression gtExpr = sExpr();
-			return exprOpt(new GreaterThanExpression(expr, gtExpr));
+			return exprOpt(factory.newGreaterThanExpr(expr, gtExpr));
 		}
 		return expr;
 	}

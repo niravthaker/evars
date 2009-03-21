@@ -15,7 +15,7 @@ import name.nirav.opath.parse.Scanner.Token;
 import name.nirav.opath.parse.Scanner.Type;
 import name.nirav.opath.parse.ast.ASTPredicateStep;
 import name.nirav.opath.parse.ast.ASTStep;
-import name.nirav.opath.parse.ast.OPathAST;
+import name.nirav.opath.parse.ast.OPathASTFactory;
 
 /**
  * 
@@ -24,11 +24,14 @@ import name.nirav.opath.parse.ast.OPathAST;
 public class OPathParser {
 
 	private Scanner scanner;
+	private PredicateExpressionParser predicateExpressionParser;
+	private OPathASTFactory ast;
 
-	public ASTStep parse(String expression) {
+	public ASTStep parse(String expression, OPathASTFactory ast) {
+		this.ast = ast;
 		this.scanner = new Scanner(expression);
 		scanner.moveNext();
-		ASTStep start = OPathAST.createStartStep();
+		ASTStep start = ast.createStartStep();
 		iterate(start);
 		Token eof = scanner.getCurrentToken();
 		if (eof.type != Type.EOF)
@@ -36,9 +39,9 @@ public class OPathParser {
 		return start;
 	}
 
-	public ASTStep parse(Scanner scanner, String expression) {
+	public ASTStep parse(Scanner scanner, String expression, OPathASTFactory ast ) {
 		this.scanner = scanner;
-		return parse(expression);
+		return parse(expression, ast);
 	}
 
 	private void showError(Token token, Type... expected) {
@@ -85,7 +88,7 @@ public class OPathParser {
 	}
 
 	private ASTStep createPathStep(ASTStep instep, Token token) {
-		ASTStep step = OPathAST.createRootContext(instep);
+		ASTStep step = ast.createRootContext(instep);
 		step.setAbsolute(token.type == Type.SLASH);
 		step.setMultilevel(token.type == Type.DSLASH);
 		return step;
@@ -116,65 +119,46 @@ public class OPathParser {
 		switch (token.type) {
 		case DOT:
 			scanner.moveNext();
-			return OPathAST.createCurrentStep(step);
+			return ast.createCurrentStep(step);
 		case DOTDOT:
 			scanner.moveNext();
-			return OPathAST.createParentStep(step);
+			return ast.createParentStep(step);
 		case LSQBR:
 			scanner.moveNext();
-			return buildPredicate(OPathAST.createPredicateStep(step));
+			return buildPredicate(ast.createPredicateStep(step));
 		case QNAME:
 			scanner.moveNext();
-			return step(OPathAST.createQNameStep(step, (String) token.value));
+			return step(ast.createQNameStep(step, (String) token.value));
 		case STAR:
 			scanner.moveNext();
-			return OPathAST.createAllTestStep(step);
+			return ast.createAllTestStep(step);
 		case ATR:
 			scanner.moveNext();
-			return OPathAST.createAttributeStep(step, (String) token.value);
+			return ast.createAttributeStep(step, (String) token.value);
 		}
 		return step;
 	}
 
 	private ASTStep buildPredicate(ASTPredicateStep predicate) {
-		predicate.setExpr(new PredicateExpressionParser(scanner).parse());
+		predicate.setExpr(getPredicateExpressionParser().parse());
 		checkBracketEnd(scanner.getCurrentToken());
 		scanner.moveNext();
 		return predicate;
-		/*
-		switch (token.type) {
-		case LITERAL:
-			Token next = scanner.moveNext();
-			predicate.setExpr(next.value);
-			next = scanner.moveNext();
-			if (next.type != Type.LITERAL)
-				throw new IllegalArgumentException(
-						"Literal didn't end properly in predicate, found : " + next.type);
-			next = scanner.moveNext();
-			checkBracketEnd(next);
-			scanner.moveNext();
-			return predicate;
-		case NUMBER:
-			next = scanner.moveNext();
-			checkBracketEnd(next);
-			scanner.moveNext();
-			predicate.setExpr(token.value);
-			return predicate;
-		case QNAME:
-			next = scanner.moveNext();
-			checkBracketEnd(next);
-			scanner.moveNext();
-			predicate.setExpr(token.value);
-			return predicate;
-		default:
-			throw new IllegalArgumentException("Invalid predicate expression");
-		}
-		*/
 	}
 
 	private void checkBracketEnd(Token next) {
 		if (next.type != Type.RSQBR)
 			throw new IllegalArgumentException("Predicate didn't end with ], found " + next.type);
+	}
+
+	public PredicateExpressionParser getPredicateExpressionParser() {
+		if (predicateExpressionParser == null)
+			predicateExpressionParser = new PredicateExpressionParser(scanner, ast);
+		return predicateExpressionParser;
+	}
+
+	public void setPredicateExpressionParser(PredicateExpressionParser predicateExpressionParser) {
+		this.predicateExpressionParser = predicateExpressionParser;
 	}
 
 }

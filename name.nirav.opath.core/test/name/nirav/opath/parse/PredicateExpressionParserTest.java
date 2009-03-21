@@ -9,6 +9,7 @@
 package name.nirav.opath.parse;
 
 import junit.framework.TestCase;
+import name.nirav.opath.parse.ast.OPathASTFactory;
 import name.nirav.opath.parse.ast.expr.EqualsExpression;
 import name.nirav.opath.parse.ast.expr.Expression;
 import name.nirav.opath.parse.ast.expr.GreaterThanExpression;
@@ -84,7 +85,7 @@ public class PredicateExpressionParserTest extends TestCase{
 	private static Expression chore(String expr) {
 		Scanner scanner = new Scanner(expr);
 		scanner.moveNext();
-		PredicateExpressionParser parser = new PredicateExpressionParser(scanner);
+		PredicateExpressionParser parser = new PredicateExpressionParser(scanner, OPathASTFactory.getInstance());
 		return parser.parse();
 	}
 }
