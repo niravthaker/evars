@@ -28,7 +28,7 @@ public class GreaterThanExpression extends EqualsExpression {
 	}
 	protected Object compare(Object evaluate, Object evaluate2) {
 		if (evaluate instanceof Number && evaluate2 instanceof Number) {
-			return ((Number) evaluate).doubleValue() >= ((Number) evaluate2).doubleValue();
+			return ((Number) evaluate).doubleValue() > ((Number) evaluate2).doubleValue();
 		}
 		return new Object();
 	}
