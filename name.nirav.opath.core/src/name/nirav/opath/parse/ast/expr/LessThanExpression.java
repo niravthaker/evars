@@ -31,7 +31,7 @@ public class LessThanExpression extends EqualsExpression {
 		if (evaluate instanceof Number && evaluate2 instanceof Number) {
 			return ((Number) evaluate).doubleValue() < ((Number) evaluate2).doubleValue();
 		}
-		return new Object();
+		return Boolean.FALSE;
 	}
 
 }
