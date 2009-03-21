@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 import name.nirav.opath.parse.OPathParser;
 import name.nirav.opath.parse.ast.ASTAllTestStep;
@@ -26,15 +25,9 @@ import name.nirav.opath.parse.ast.ASTPredicateStep;
 import name.nirav.opath.parse.ast.ASTQNameStep;
 import name.nirav.opath.parse.ast.ASTStep;
 import name.nirav.opath.parse.ast.ASTVisitor;
+import name.nirav.opath.parse.ast.OPathASTFactory;
 import name.nirav.opath.parse.ast.StepType;
-import name.nirav.opath.parse.ast.expr.EqualsExpression;
 import name.nirav.opath.parse.ast.expr.Expression;
-import name.nirav.opath.parse.ast.expr.ExpressionVisitor;
-import name.nirav.opath.parse.ast.expr.GreaterThanExpression;
-import name.nirav.opath.parse.ast.expr.LessThanExpression;
-import name.nirav.opath.parse.ast.expr.LiteralExpression;
-import name.nirav.opath.parse.ast.expr.MethodInvocationExpression;
-import name.nirav.opath.parse.ast.expr.NotEqualsExpression;
 import name.nirav.opath.parse.ast.expr.NumberExpression;
 import name.nirav.opath.parse.ast.expr.QNameExpression;
 
@@ -42,14 +35,16 @@ import name.nirav.opath.parse.ast.expr.QNameExpression;
  * 
  * 
  */
-public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
+public class OPathInterpreter extends ASTVisitor {
 	private static final SimpleNameMatcher SIMPLE_NAME_MATCHER = new SimpleNameMatcher();
 	protected Collection<? extends Variable> context;
 	protected Collection<Variable> filtered;
 	protected Collection<Variable> tempStepList;
 	private boolean matchAllDescendants;
 	private Variable predicateContext;
-	private Stack<Boolean> exprResultStack;
+	private Boolean exprResult = Boolean.FALSE;
+	private OPathParser pathParser;
+	private OPathASTFactory astFactory;
 
 	interface IMatchingStrategy {
 		public boolean match(Variable var, ASTStep step);
@@ -69,7 +64,6 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 		CycleDetector.getInstance().clear();
 		filtered = new LinkedList<Variable>();
 		tempStepList = new LinkedList<Variable>();
-		this.exprResultStack = new Stack<Boolean>();
 		this.context = Arrays.asList(new Variable[] { context });
 		filtered.add(context);
 		interprete(expr);
@@ -77,7 +71,7 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 	}
 
 	protected void interprete(String expr) {
-		ASTStep parse = new OPathParser().parse(expr);
+		ASTStep parse = getParser().parse(expr, this.getASTFactory());
 		while (true) {
 			parse = parse.getNext();
 			if (parse == null)
@@ -152,14 +146,36 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 		for (Variable var : this.filtered) {
 			List<Variable> children = var.getChildren();
 			for (Variable variable : children) {
-				this.predicateContext = variable;
-				pExpr.accept(this);
-				Boolean pop = this.exprResultStack.pop();
-				if (pop.booleanValue()) {
+				evaluateExpression(pExpr, variable);
+				if (exprResult.booleanValue()) {
 					tempStepList.add(variable);
 				}
 			}
 		}
+	}
+
+	protected void evaluateExpression(Expression pExpr, Variable variable) {
+		this.predicateContext = variable;
+		if (pExpr instanceof NumberExpression) {
+			exprResult = evaluateArrayIndexer((NumberExpression) pExpr);
+		} else if (pExpr instanceof QNameExpression) {
+			exprResult = evaluateQName((QNameExpression) pExpr);
+		} else {
+			Object evaluation = pExpr.evaluate(this.predicateContext);
+			this.exprResult = evaluation instanceof Boolean ? (Boolean) evaluation : Boolean.TRUE;
+		}
+	}
+
+	public Boolean evaluateArrayIndexer(NumberExpression expr) {
+		Integer value = (Integer) expr.getValue();
+		return this.predicateContext.getName().equals("[" + value + "]") ? Boolean.TRUE
+				: Boolean.FALSE;
+	}
+
+	public Boolean evaluateQName(QNameExpression expr) {
+		String name = (String) expr.getValue();
+		return this.predicateContext.getName().equals(name) ? Boolean.TRUE : Boolean.FALSE;
+
 	}
 
 	protected void matchNodeSetIterative(ASTStep step, Variable var,
@@ -172,8 +188,7 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 			for (Variable var1 : children) {
 				CycleDetector.getInstance().acyclicAdd(var1);
 				if (CycleDetector.getInstance().wasCycleDetected()) {
-					System.out.println("Pruning from : " + buildList(var1));
-					// variables.clear();
+					// System.out.println("Pruning from : " + buildList(var1));
 					CycleDetector.getInstance().clearCycleFlag();
 					continue;
 				}
@@ -200,7 +215,7 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 			stck.add(name);
 			var1 = var1.getParent();
 			if (var1 != null) {
-				name = var1.getName();// + ":" + var1.getValue().getValue();
+				name = var1.getName();
 			}
 		}
 		Collections.reverse(stck);
@@ -217,70 +232,24 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 
 	protected void matchNodeSet(ASTStep step, Variable var, IMatchingStrategy matchingStrategy) {
 		matchNodeSetIterative(step, var, matchingStrategy);
-		// matchNodeSetRecursive(step, var, matchingStrategy);
 	}
 
-	/*
-	 * protected void matchNodeSetRecursive(ASTStep step, Variable var,
-	 * IMatchingStrategy matchingStrategy) { Set<Variable> children = new
-	 * HashSet<Variable>(var.getChildren()); for (Variable variable : children)
-	 * { if (matchingStrategy.match(variable, step)) { if (variable.getValue()
-	 * != null) CycleDetector.getInstance().acyclicAdd(variable); if
-	 * (!CycleDetector.getInstance().wasCycleDetected()) {
-	 * tempStepList.add(variable); } else {
-	 * CycleDetector.getInstance().clearCycleFlag(); return; } } if
-	 * (matchAllDescendants && !CycleDetector.getInstance().wasCycleDetected())
-	 * { matchNodeSet(step, variable, matchingStrategy); } } }
-	 */
-
-	public void visit(EqualsExpression expr) {
-		Object evaluate = expr.evaluate(predicateContext);
-		if (evaluate instanceof Boolean) {
-			this.exprResultStack.push((Boolean) evaluate);
-		} else
-			this.exprResultStack.push(Boolean.TRUE);
+	public OPathParser getParser() {
+		if (pathParser == null)
+			pathParser = new OPathParser();
+		return pathParser;
 	}
 
-	public void visit(NotEqualsExpression expr) {
-		Object evaluate = expr.evaluate(predicateContext);
-		if (evaluate instanceof Boolean) {
-			this.exprResultStack.push((Boolean) evaluate);
-		} else
-			this.exprResultStack.push(Boolean.TRUE);
+	public void setPathParser(OPathParser pathParser) {
+		this.pathParser = pathParser;
 	}
 
-	public void visit(GreaterThanExpression expr) {
-		System.out.println(expr);
+	public void setASTFactory(OPathASTFactory astFactory) {
+		this.astFactory = astFactory;
 	}
 
-	public void visit(LessThanExpression expr) {
-		System.out.println(expr);
+	public OPathASTFactory getASTFactory() {
+		return astFactory;
 	}
 
-	public void visit(LiteralExpression expr) {
-		System.out.println(expr);
-	}
-
-	public void visit(MethodInvocationExpression expr) {
-		System.out.println(expr);
-	}
-
-	public void visit(NumberExpression expr) {
-		Integer value = (Integer) expr.getValue();
-		if (this.predicateContext.getName().equals("[" + value + "]"))
-			this.exprResultStack.push(Boolean.TRUE);
-		else
-			this.exprResultStack.push(Boolean.FALSE);
-	}
-
-	public void visit(QNameExpression expr) {
-		String name = (String) expr.getValue();
-		if (this.predicateContext.getName().equals(name)) {
-			this.exprResultStack.push(Boolean.TRUE);
-		}
-		if (exprResultStack.size() == 0) {
-			this.exprResultStack.push(Boolean.FALSE);
-		}
-
-	}
 }
