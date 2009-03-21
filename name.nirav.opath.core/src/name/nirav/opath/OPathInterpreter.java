@@ -188,7 +188,7 @@ public class OPathInterpreter extends ASTVisitor {
 			for (Variable var1 : children) {
 				CycleDetector.getInstance().acyclicAdd(var1);
 				if (CycleDetector.getInstance().wasCycleDetected()) {
-					// System.out.println("Pruning from : " + buildList(var1));
+					 System.out.println("Pruning from : " + buildList(var1));
 					CycleDetector.getInstance().clearCycleFlag();
 					continue;
 				}
