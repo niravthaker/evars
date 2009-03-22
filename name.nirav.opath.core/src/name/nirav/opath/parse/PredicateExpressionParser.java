@@ -57,11 +57,19 @@ public class PredicateExpressionParser {
 			return factory.newQNameExpr(currentToken.value);
 		case LITERAL:
 			Token next = scanner.moveNext();
-			if (scanner.moveNext().type != Scanner.Type.LITERAL)
+			boolean isRegEx = next.type == Type.ATR ? true : false;
+			StringBuilder builder = new StringBuilder();
+			builder.append(next.value);
+			while (next.type != Type.LITERAL && next.type != Type.EOF) {
+				next = scanner.moveNext();
+				if(next.type != Type.LITERAL && next.type != Type.EOF)
+					builder.append(next.value);
+			}
+			if (next.type != Scanner.Type.LITERAL)
 				throw new IllegalArgumentException("Literal didn't end properly, found : "
 						+ scanner.getCurrentToken());
 			scanner.moveNext();
-			return factory.newLiteralExpr(next.value);
+			return factory.newLiteralExpr(builder.toString(), isRegEx);
 		case MI:
 			Token methodName = scanner.moveNext();
 			scanner.moveNext();
