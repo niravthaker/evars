@@ -52,7 +52,7 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 	protected Boolean exprResult = Boolean.FALSE;
 	protected OPathParser pathParser;
 	protected OPathASTFactory astFactory;
-
+	private IProgressListener progressListener;
 	interface IMatchingStrategy {
 		public boolean match(Variable var, ASTStep step);
 	}
@@ -66,7 +66,6 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 	public Collection<Variable> getResult() {
 		return filtered;
 	}
-
 	public OPathInterpreter evaluate(String expr, Variable context) {
 		CycleDetector.getInstance().clear();
 		filtered = new LinkedList<Variable>();
@@ -79,7 +78,11 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 
 	protected void interprete(String expr) {
 		ASTStep parse = getParser().parse(expr, this.getASTFactory());
+		getProgressListener().beginTask("OPath Interpretation", count(parse));
+		int progress = 0;
 		while (true) {
+			if(getProgressListener().isCanceled())
+				break;
 			parse = parse.getNext();
 			if (parse == null)
 				break;
@@ -89,14 +92,27 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 			if (parse.getType() == StepType.SlashStep && matchAllDescendants) {
 				parse = parse.getNext();
 			}
+			getProgressListener().setTaskName("Executing " + parse);
 			parse.accept(this);
+			getProgressListener().worked(progress++);
 			filtered.clear();
 			for (Variable variable : tempStepList) {
+				if(getProgressListener().isCanceled())
+					break;
 				filtered.add(variable);
 			}
 		}
+		getProgressListener().done();
 	}
 
+	private int count(ASTStep parse) {
+		parse = parse.getNext();
+		int cnt = 1;
+		while((parse = parse.getNext()) != null)
+			cnt++;
+		return cnt;
+	}
+	
 	@Override
 	public void visit(ASTQNameStep step) {
 		tempStepList.clear();
@@ -151,8 +167,12 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 		tempStepList.clear();
 		Expression pExpr = step.getExpr();
 		for (Variable var : this.filtered) {
+			if(getProgressListener().isCanceled())
+				return;
 			List<Variable> children = var.getChildren();
 			for (Variable variable : children) {
+				if(getProgressListener().isCanceled())
+					return;
 				this.predicateContext = variable;
 				exprResult = Boolean.FALSE;
 				pExpr.accept(this);
@@ -191,7 +211,11 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 		children.addAll(variable.getChildren());
 		while (children != null && children.size() != 0) {
 			List<Variable> variables = new LinkedList<Variable>();
+			if(getProgressListener().isCanceled())
+				return;
 			for (Variable var1 : children) {
+				if(getProgressListener().isCanceled())
+					return;
 				CycleDetector.getInstance().acyclicAdd(var1);
 				if (CycleDetector.getInstance().wasCycleDetected()) {
 					System.out.println("Pruning from : " + buildList(var1));
@@ -299,6 +323,17 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 
 	public void visit(QNameExpression expr) {
 		exprResult = evaluateQName(expr);
+	}
+
+	public void setProgressListener(IProgressListener listener) {
+		this.progressListener = listener;
+	}
+
+	public IProgressListener getProgressListener() {
+		if (progressListener == null) {
+			progressListener = new DefaultProgressListener();
+		}
+		return progressListener;
 	}
 
 }
