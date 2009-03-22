@@ -28,6 +28,7 @@ import name.nirav.opath.parse.ast.ASTVisitor;
 import name.nirav.opath.parse.ast.OPathASTFactory;
 import name.nirav.opath.parse.ast.StepType;
 import name.nirav.opath.parse.ast.expr.Expression;
+import name.nirav.opath.parse.ast.expr.LiteralExpression;
 import name.nirav.opath.parse.ast.expr.NumberExpression;
 import name.nirav.opath.parse.ast.expr.QNameExpression;
 
@@ -144,14 +145,22 @@ public class OPathInterpreter extends ASTVisitor {
 		tempStepList.clear();
 		Expression pExpr = step.getExpr();
 		for (Variable var : this.filtered) {
-			List<Variable> children = var.getChildren();
-			for (Variable variable : children) {
-				evaluateExpression(pExpr, variable);
-				if (exprResult.booleanValue()) {
-					tempStepList.add(variable);
+			if (pExpr instanceof LiteralExpression) {
+				pExpr.evaluate(var);
+			} else {
+				List<Variable> children = var.getChildren();
+				for (Variable variable : children) {
+					evaluateExpression(pExpr, variable);
+					if (exprResult.booleanValue()) {
+						CycleDetector.getInstance().acyclicAdd(var);
+						if (!CycleDetector.getInstance().wasCycleDetected())
+							tempStepList.add(var);
+					}
 				}
 			}
 		}
+		CycleDetector.getInstance().clear();
+		CycleDetector.getInstance().clearCycleFlag();
 	}
 
 	protected void evaluateExpression(Expression pExpr, Variable variable) {
@@ -188,7 +197,7 @@ public class OPathInterpreter extends ASTVisitor {
 			for (Variable var1 : children) {
 				CycleDetector.getInstance().acyclicAdd(var1);
 				if (CycleDetector.getInstance().wasCycleDetected()) {
-					 System.out.println("Pruning from : " + buildList(var1));
+					System.out.println("Pruning from : " + buildList(var1));
 					CycleDetector.getInstance().clearCycleFlag();
 					continue;
 				}
