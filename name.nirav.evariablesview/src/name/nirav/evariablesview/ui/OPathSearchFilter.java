@@ -67,6 +67,7 @@ public class OPathSearchFilter {
 		public IStatus run(IProgressMonitor monitor) {
 			context = objectGraphBuilder.buildFromSelection(treeSelection, stackFrame);
 			interpreter = new JDIOPathInterpreter();
+			interpreter.setProgressListener(new ProgressListenerDelegate(monitor));
 			DebugVariable v = new DebugVariable("Context", null) {
 				@Override
 				public List<Variable> getChildren() {
