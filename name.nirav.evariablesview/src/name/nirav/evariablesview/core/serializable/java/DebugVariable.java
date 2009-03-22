@@ -89,11 +89,6 @@ public class DebugVariable extends Variable {
 		if (getClass() != obj.getClass())
 			return false;
 		DebugVariable other = (DebugVariable) obj;
-//		if (jdiValue == null) {
-//			if (other.jdiValue != null)
-//				return false;
-//		} else if (!jdiValue.equals(other.jdiValue))
-//			return false;
 		if (var == null) {
 			if (other.var != null)
 				return false;
@@ -114,6 +109,10 @@ public class DebugVariable extends Variable {
 			Activator.log(e);
 		}
 		return super.toString();
+	}
+	
+	public JDIVariable getJDIVar() {
+		return var;
 	}
 
 }
