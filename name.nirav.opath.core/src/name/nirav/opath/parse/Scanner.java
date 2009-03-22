@@ -8,11 +8,16 @@
  *******************************************************************************/
 package name.nirav.opath.parse;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 
  * 
  */
 public class Scanner {
+	public static final List<Character> REG_TERMINATORS = Arrays.asList('/', '=', '\'');
+
 	private interface Comparator {
 		boolean matches(char ch);
 	}
@@ -62,15 +67,13 @@ public class Scanner {
 
 		@Override
 		public String toString() {
-			return (int) c == 0 ? str.length() != 0 ? name() + ":"+ str : name() : Character.toString(c);
+			return (int) c == 0 ? str.length() != 0 ? name() + ":" + str : name() : Character
+					.toString(c);
 		}
 	}
 
 	public static class Token {
-		public Token(Type tp) {
-			type = tp;
-		}
-
+		
 		public Token(Type type, Object val) {
 			this.type = type;
 			value = val;
@@ -103,11 +106,11 @@ public class Scanner {
 			Character ch = this.stream.charAt(pos++);
 			switch (ch) {
 			case '>':
-					return createToken(Type.GT);
+				return createToken(Type.GT);
 			case '<':
 				return createToken(Type.LT);
 			case '#':
-					return createToken(Type.MI);
+				return createToken(Type.MI);
 			case '=':
 				return createToken(Type.EQ);
 			case '!':
@@ -131,12 +134,10 @@ public class Scanner {
 				pos++;
 				return createToken(Type.ATR, readAString(new Comparator() {
 					public boolean matches(char ch) {
-						return ch == '/' || ch == '=' ? false : true;
+						return !REG_TERMINATORS.contains(ch);
 					}
 				}).toString());
 			case '\'':
-//				String literalTok = readAString(javaIDComparator).toString();
-//				pos++;
 				return createToken(Type.LITERAL);
 			case '/':
 				if (pos < stream.length() && stream.charAt(pos) == '/') {
@@ -161,31 +162,29 @@ public class Scanner {
 							return Character.isDigit(ch);
 						}
 					}).toString()));
-				}
-				else if (Character.isLetter(ch)) {
+				} else if (Character.isLetter(ch)) {
 					return createToken(Type.QNAME, readAString(javaIDComparator).toString());
-				}
-				else {
+				} else {
 					throw new IllegalArgumentException("Found unacceptable symbol : " + ch);
 				}
 			}
 		}
-		if(currentToken.type == Type.EOF)
+		if (currentToken.type == Type.EOF)
 			throw new IllegalStateException("Already at EOF!");
 		return createToken(Type.EOF);
 	}
 
 	private Token createToken(Type type) {
-		Token token = new Token(type);
+		Token token = new Token(type, type.c);
 		this.currentToken = token;
-//		print();
+		// print();
 		return token;
 	}
 
 	private Token createToken(Type type, Object obj) {
 		Token token = new Token(type, obj);
 		this.currentToken = token;
-//		print();
+		// print();
 		return token;
 	}
 
