@@ -27,8 +27,14 @@ import name.nirav.opath.parse.ast.ASTStep;
 import name.nirav.opath.parse.ast.ASTVisitor;
 import name.nirav.opath.parse.ast.OPathASTFactory;
 import name.nirav.opath.parse.ast.StepType;
+import name.nirav.opath.parse.ast.expr.EqualsExpression;
 import name.nirav.opath.parse.ast.expr.Expression;
+import name.nirav.opath.parse.ast.expr.ExpressionVisitor;
+import name.nirav.opath.parse.ast.expr.GreaterThanExpression;
+import name.nirav.opath.parse.ast.expr.LessThanExpression;
 import name.nirav.opath.parse.ast.expr.LiteralExpression;
+import name.nirav.opath.parse.ast.expr.MethodInvocationExpression;
+import name.nirav.opath.parse.ast.expr.NotEqualsExpression;
 import name.nirav.opath.parse.ast.expr.NumberExpression;
 import name.nirav.opath.parse.ast.expr.QNameExpression;
 
@@ -36,7 +42,7 @@ import name.nirav.opath.parse.ast.expr.QNameExpression;
  * 
  * 
  */
-public class OPathInterpreter extends ASTVisitor {
+public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 	private static final SimpleNameMatcher SIMPLE_NAME_MATCHER = new SimpleNameMatcher();
 	protected Collection<? extends Variable> context;
 	protected Collection<Variable> filtered;
@@ -145,17 +151,14 @@ public class OPathInterpreter extends ASTVisitor {
 		tempStepList.clear();
 		Expression pExpr = step.getExpr();
 		for (Variable var : this.filtered) {
-			if (pExpr instanceof LiteralExpression) {
-				pExpr.evaluate(var);
-			} else {
-				List<Variable> children = var.getChildren();
-				for (Variable variable : children) {
-					evaluateExpression(pExpr, variable);
-					if (exprResult.booleanValue()) {
-						CycleDetector.getInstance().acyclicAdd(var);
-						if (!CycleDetector.getInstance().wasCycleDetected())
-							tempStepList.add(var);
-					}
+			List<Variable> children = var.getChildren();
+			for (Variable variable : children) {
+				this.predicateContext = variable;
+				pExpr.accept(this);
+				if (exprResult.booleanValue()) {
+					CycleDetector.getInstance().acyclicAdd(var);
+					if (!CycleDetector.getInstance().wasCycleDetected())
+						tempStepList.add(var);
 				}
 			}
 		}
@@ -163,16 +166,9 @@ public class OPathInterpreter extends ASTVisitor {
 		CycleDetector.getInstance().clearCycleFlag();
 	}
 
-	protected void evaluateExpression(Expression pExpr, Variable variable) {
-		this.predicateContext = variable;
-		if (pExpr instanceof NumberExpression) {
-			exprResult = evaluateArrayIndexer((NumberExpression) pExpr);
-		} else if (pExpr instanceof QNameExpression) {
-			exprResult = evaluateQName((QNameExpression) pExpr);
-		} else {
-			Object evaluation = pExpr.evaluate(this.predicateContext);
-			this.exprResult = evaluation instanceof Boolean ? (Boolean) evaluation : Boolean.TRUE;
-		}
+	protected void evaluateExpression(Expression pExpr) {
+		Object evaluation = pExpr.evaluate(this.predicateContext);
+		this.exprResult = evaluation instanceof Boolean ? (Boolean) evaluation : Boolean.TRUE;
 	}
 
 	public Boolean evaluateArrayIndexer(NumberExpression expr) {
@@ -182,8 +178,8 @@ public class OPathInterpreter extends ASTVisitor {
 	}
 
 	public Boolean evaluateQName(QNameExpression expr) {
-		String name = (String) expr.getValue();
-		return this.predicateContext.getName().equals(name) ? Boolean.TRUE : Boolean.FALSE;
+		return this.predicateContext.getName().equals(expr.getValue()) ? Boolean.TRUE
+				: Boolean.FALSE;
 
 	}
 
@@ -259,6 +255,38 @@ public class OPathInterpreter extends ASTVisitor {
 
 	public OPathASTFactory getASTFactory() {
 		return astFactory;
+	}
+
+	public void visit(EqualsExpression expr) {
+		evaluateExpression(expr);
+	}
+
+	public void visit(NotEqualsExpression expr) {
+		evaluateExpression(expr);
+	}
+
+	public void visit(GreaterThanExpression expr) {
+		evaluateExpression(expr);
+	}
+
+	public void visit(LessThanExpression expr) {
+		evaluateExpression(expr);
+	}
+
+	public void visit(LiteralExpression expr) {
+		evaluateExpression(expr);
+	}
+
+	public void visit(MethodInvocationExpression expr) {
+		evaluateExpression(expr);
+	}
+
+	public void visit(NumberExpression expr) {
+		exprResult = evaluateArrayIndexer(expr);
+	}
+
+	public void visit(QNameExpression expr) {
+		exprResult = evaluateQName(expr);
 	}
 
 }
