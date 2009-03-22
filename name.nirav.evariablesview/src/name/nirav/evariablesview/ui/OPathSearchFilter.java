@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.List;
 
 import name.nirav.evariablesview.Activator;
+import name.nirav.evariablesview.core.opath.JDIExpressionFactory;
+import name.nirav.evariablesview.core.opath.JDIOPathInterpreter;
 import name.nirav.evariablesview.core.serializable.java.DebugVariable;
 import name.nirav.evariablesview.core.util.ObjectGraphBuilder;
 import name.nirav.opath.OPathInterpreter;
@@ -65,7 +67,7 @@ public class OPathSearchFilter {
 
 		public IStatus run(IProgressMonitor monitor) {
 			context = objectGraphBuilder.buildFromSelection(treeSelection, stackFrame);
-			interpreter = new OPathInterpreter();
+			interpreter = new JDIOPathInterpreter();
 			DebugVariable v = new DebugVariable("Context", null) {
 				@Override
 				public List<Variable> getChildren() {
@@ -81,6 +83,7 @@ public class OPathSearchFilter {
 					return super.getName();
 				}
 			};
+			interpreter.setASTFactory(new JDIExpressionFactory());
 			interpreter.evaluate(expressionString, v);
 			evaluate = interpreter.getResult();
 			return Status.OK_STATUS;
@@ -108,7 +111,7 @@ public class OPathSearchFilter {
 				}
 			}
 		});
-		while (obj[0] == null || obj[1] == null)
+		while ((obj[0] == null || obj[1] == null) && viewer.getInput() != null)
 			;
 
 		filter((ITreeSelection) obj[0], (JDIStackFrame) obj[1]);
