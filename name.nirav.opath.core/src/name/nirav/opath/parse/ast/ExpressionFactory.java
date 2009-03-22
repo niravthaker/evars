@@ -37,7 +37,7 @@ public interface ExpressionFactory {
 
 	public NumberExpression newNumberExpr(Object value);
 
-	public LiteralExpression newLiteralExpr(Object value);
+	public LiteralExpression newLiteralExpr(Object value, boolean isRegEx);
 
 	public MethodInvocationExpression newMethodInvocationExpr(Object value);
 }

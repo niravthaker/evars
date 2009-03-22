@@ -98,8 +98,8 @@ public class OPathASTFactory implements ExpressionFactory {
 		return new LessThanExpression(lhs, rhs);
 	}
 
-	public LiteralExpression newLiteralExpr(Object value) {
-		return new LiteralExpression(value);
+	public LiteralExpression newLiteralExpr(Object value, boolean isRegEx) {
+		return new LiteralExpression(value, isRegEx);
 	}
 
 	public MethodInvocationExpression newMethodInvocationExpr(Object value) {
