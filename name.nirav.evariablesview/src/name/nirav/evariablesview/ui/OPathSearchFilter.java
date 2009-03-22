@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.List;
 
 import name.nirav.evariablesview.Activator;
-import name.nirav.evariablesview.core.opath.JDIExpressionFactory;
 import name.nirav.evariablesview.core.opath.JDIOPathInterpreter;
 import name.nirav.evariablesview.core.serializable.java.DebugVariable;
 import name.nirav.evariablesview.core.util.ObjectGraphBuilder;
@@ -83,7 +82,6 @@ public class OPathSearchFilter {
 					return super.getName();
 				}
 			};
-			interpreter.setASTFactory(new JDIExpressionFactory());
 			interpreter.evaluate(expressionString, v);
 			evaluate = interpreter.getResult();
 			return Status.OK_STATUS;
