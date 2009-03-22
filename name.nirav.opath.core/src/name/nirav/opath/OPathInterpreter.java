@@ -154,6 +154,7 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 			List<Variable> children = var.getChildren();
 			for (Variable variable : children) {
 				this.predicateContext = variable;
+				exprResult = Boolean.FALSE;
 				pExpr.accept(this);
 				if (exprResult.booleanValue()) {
 					CycleDetector.getInstance().acyclicAdd(var);
@@ -274,7 +275,18 @@ public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
 	}
 
 	public void visit(LiteralExpression expr) {
-		evaluateExpression(expr);
+		Value value = predicateContext.getValue();
+		if (value != null) {
+			if (value.getValue() != null) {
+				if (value.getComparableValue() instanceof String) {
+					String val = (String) value.getComparableValue();
+					if (expr.isRegEx())
+						this.exprResult = val.matches((String) expr.getValue());
+					else
+						this.exprResult = val.equals(expr.getValue());
+				}
+			}
+		}
 	}
 
 	public void visit(MethodInvocationExpression expr) {
