@@ -43,15 +43,15 @@ import name.nirav.opath.parse.ast.expr.QNameExpression;
  * 
  */
 public class OPathInterpreter extends ASTVisitor implements ExpressionVisitor {
-	private static final SimpleNameMatcher SIMPLE_NAME_MATCHER = new SimpleNameMatcher();
+	protected static final SimpleNameMatcher SIMPLE_NAME_MATCHER = new SimpleNameMatcher();
 	protected Collection<? extends Variable> context;
 	protected Collection<Variable> filtered;
 	protected Collection<Variable> tempStepList;
-	private boolean matchAllDescendants;
-	private Variable predicateContext;
-	private Boolean exprResult = Boolean.FALSE;
-	private OPathParser pathParser;
-	private OPathASTFactory astFactory;
+	protected boolean matchAllDescendants;
+	protected Variable predicateContext;
+	protected Boolean exprResult = Boolean.FALSE;
+	protected OPathParser pathParser;
+	protected OPathASTFactory astFactory;
 
 	interface IMatchingStrategy {
 		public boolean match(Variable var, ASTStep step);
