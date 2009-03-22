@@ -10,7 +10,6 @@ package name.nirav.opath.parse.ast.expr;
 
 import name.nirav.opath.Variable;
 
-
 /**
  * @author Nirav Thaker
  * 
@@ -32,7 +31,7 @@ public class EqualsExpression extends Expression {
 	public Expression getRightHandSide() {
 		return rhs;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "{" + getLeftHandSide() + "} = {" + getRightHandSide() + "}";
@@ -52,11 +51,26 @@ public class EqualsExpression extends Expression {
 		return compare(evaluate, evaluate2);
 	}
 
-	protected Object compare(Object evaluate, Object evaluate2) {
-		if(evaluate instanceof Number && evaluate2 instanceof Number) {
-			return ((Number) evaluate).doubleValue() == ((Number) evaluate2).doubleValue();
+	protected Object compare(Object lhsEval, Object rhsEval) {
+		if (lhsEval instanceof Number && rhsEval instanceof Number) {
+			return ((Number) lhsEval).doubleValue() == ((Number) rhsEval).doubleValue();
 		}
-		return evaluate.equals(evaluate2);
+		if (lhsEval instanceof String && rhsEval instanceof String) {
+			String str1 = (String) lhsEval;
+			String str2 = (String) rhsEval;
+			if (str1 != null && str2 != null) {
+				if (lhs instanceof LiteralExpression) {
+					LiteralExpression expr = (LiteralExpression) lhs;
+					if (expr.isRegEx())
+						return str2.matches(str1);
+				} else if (rhs instanceof LiteralExpression) {
+					LiteralExpression expr = (LiteralExpression) rhs;
+					if (expr.isRegEx())
+						return str1.matches(str2);
+				}
+			}
+		}
+		return lhsEval.equals(rhsEval);
 	}
 
 	protected Object tryParsing(Object evaluate) {
