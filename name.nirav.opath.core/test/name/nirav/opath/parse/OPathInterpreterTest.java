@@ -3,6 +3,7 @@ package name.nirav.opath.parse;
 import java.util.Collection;
 
 import junit.framework.TestCase;
+import name.nirav.opath.ModelVisitor;
 import name.nirav.opath.OPathInterpreter;
 import name.nirav.opath.Value;
 import name.nirav.opath.Variable;
@@ -72,6 +73,7 @@ public class OPathInterpreterTest extends TestCase {
 		c.setValue(val);
 		e = new Variable("e", c);
 		val.addVariable(e);
+		prettyPrint(x);
 	}
 
 	public void testAllElementsTest() {
@@ -152,46 +154,58 @@ public class OPathInterpreterTest extends TestCase {
 		value.addVariable(new Variable("[4]", a));
 		value.addVariable(new Variable("[5]", a));
 		Variable var6 = new Variable("[6]", a);
+		Variable literalVal = new Variable("literal", var6);
+		value.addVariable(literalVal);
 		value.addVariable(var6);
-//		value = new Value();
-//		var6.setValue(value);
-		Variable name = new Variable("name",var6);
+		Variable name = new Variable("name", var6);
 		value.addVariable(name);
-		value = new Value() {
+		name.setValue(new Value() {
 			@Override
 			public Object getComparableValue() {
 				return 1;
 			}
-		};
-		name.setValue(value);
+		});
+		literalVal.setValue(new Value() {
+			@Override
+			public String toString() {
+				return getComparableValue().toString();
+			}
+			@Override
+			public Object getComparableValue() {
+				return "test";
+			}
+		});
+
+		prettyPrint(frame);
+
 		intr = intr();
 		intr.evaluate("a[6]", frame);
 		Collection<Variable> result = intr.getResult();
 		assertEquals(1, result.size());
-		assertEquals(var6, result.toArray()[0]);
-		
+		assertEquals(a, result.toArray()[0]);
+
 		intr = intr();
 		intr.evaluate("a/[6]", frame);
 		result = intr.getResult();
 		assertEquals(1, result.size());
-		assertEquals(var6, result.toArray()[0]);
-		
+		assertEquals(a, result.toArray()[0]);
+
 		intr = intr();
 		intr.evaluate("a[name]", frame);
 		result = intr.getResult();
 		assertEquals(1, result.size());
-		assertEquals(name, result.toArray()[0]);
+		assertEquals(a, result.toArray()[0]);
 
 		intr = intr();
 		intr.evaluate("a[name = 1]", frame);
 		result = intr.getResult();
 		assertEquals(1, result.size());
-		assertEquals(name, result.toArray()[0]);
+		assertEquals(a, result.toArray()[0]);
 
 		intr = intr();
 		intr.evaluate("a[name != 6]", frame);
 		result = intr.getResult();
-		assertEquals(8, result.size());
+		assertEquals(1, result.size());
 
 		intr = intr();
 		intr.evaluate("a[name > 0]", frame);
@@ -207,5 +221,46 @@ public class OPathInterpreterTest extends TestCase {
 		intr.evaluate("a[name < 2]", frame);
 		result = intr.getResult();
 		assertEquals(1, result.size());
+
+		intr = intr();
+		intr.evaluate("a[literal = '@2']", frame);
+		result = intr.getResult();
+		assertEquals(0, result.size());
+
+		intr = intr();
+		intr.evaluate("a[literal = '@t.*']", frame);
+		result = intr.getResult();
+		assertEquals(1, result.size());
+	}
+
+	public static void prettyPrint(Variable frame) {
+		frame.accept(new ModelVisitor() {
+			int tab;
+
+			@Override
+			public void enter(Value value) {
+				tab++;
+			}
+
+			@Override
+			public void exit(Value value) {
+				tab--;
+			}
+			@Override
+			public void visit(Value value) {
+				super.visit(value);
+			}
+			@Override
+			public void visit(Variable variable) {
+				print("Vari:" + variable.toString() + " => " + variable.getValue());
+			}
+
+			private void print(String str) {
+				for (int i = 0; i < tab; i++) {
+					System.out.print("   ");
+				}
+				System.out.println(str);
+			}
+		});
 	}
 }

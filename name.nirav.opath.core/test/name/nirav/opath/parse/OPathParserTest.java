@@ -108,6 +108,16 @@ public class OPathParserTest extends TestCase {
 	@Test
 	public void testPredicateExtensions() {
 		oparse().parse("/author/revise[id=5]/divide", factory).pp();
+		oparse().parse("/author/revise[id!=5]/divide", factory).pp();
+	}
+	@Test
+	public void testPredicateRelationalExpr() {
+		oparse().parse("/author/revise[id<5]/divide", factory).pp();
+		oparse().parse("/author/revise[id>55]/divide", factory).pp();
+		oparse().parse("/author/revise[#hashCode='5']/divide", factory).pp();
+	}
+	public void testLiteralRegEx() {
+		oparse().parse("/author/revise[#hashCode='@5.*']", factory).pp();
 	}
 
 	private OPathParser oparse() {
