@@ -8,10 +8,13 @@
  *******************************************************************************/
 package name.nirav.evariablesview;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import com.sun.jdi.VMDisconnectedException;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -81,6 +84,11 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	public static void log(Throwable throwable) {
+		if (throwable instanceof VMDisconnectedException
+				|| (throwable instanceof CoreException && ((CoreException) throwable).getStatus()
+						.getException() instanceof VMDisconnectedException)) {
+			throw new IllegalStateException(throwable);
+		}
 		getDefault().getLog().log(getErrorStatus(throwable));
 	}
 }
