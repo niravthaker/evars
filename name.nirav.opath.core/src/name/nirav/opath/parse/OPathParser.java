@@ -28,10 +28,10 @@ public class OPathParser {
 	private OPathASTFactory ast;
 
 	public ASTStep parse(String expression, OPathASTFactory ast) {
-		this.ast = ast;
+		this.setAST(ast);
 		this.scanner = new Scanner(expression);
 		scanner.moveNext();
-		ASTStep start = ast.createStartStep();
+		ASTStep start = getAST().createStartStep();
 		iterate(start);
 		Token eof = scanner.getCurrentToken();
 		if (eof.type != Type.EOF)
@@ -88,7 +88,7 @@ public class OPathParser {
 	}
 
 	private ASTStep createPathStep(ASTStep instep, Token token) {
-		ASTStep step = ast.createRootContext(instep);
+		ASTStep step = getAST().createRootContext(instep);
 		step.setAbsolute(token.type == Type.SLASH);
 		step.setMultilevel(token.type == Type.DSLASH);
 		return step;
@@ -119,22 +119,22 @@ public class OPathParser {
 		switch (token.type) {
 		case DOT:
 			scanner.moveNext();
-			return ast.createCurrentStep(step);
+			return getAST().createCurrentStep(step);
 		case DOTDOT:
 			scanner.moveNext();
-			return ast.createParentStep(step);
+			return getAST().createParentStep(step);
 		case LSQBR:
 			scanner.moveNext();
-			return buildPredicate(ast.createPredicateStep(step));
+			return buildPredicate(getAST().createPredicateStep(step));
 		case QNAME:
 			scanner.moveNext();
-			return step(ast.createQNameStep(step, (String) token.value));
+			return step(getAST().createQNameStep(step, (String) token.value));
 		case STAR:
 			scanner.moveNext();
-			return ast.createAllTestStep(step);
+			return getAST().createAllTestStep(step);
 		case ATR:
 			scanner.moveNext();
-			return ast.createAttributeStep(step, (String) token.value);
+			return getAST().createAttributeStep(step, (String) token.value);
 		}
 		return step;
 	}
@@ -153,12 +153,23 @@ public class OPathParser {
 
 	public PredicateExpressionParser getPredicateExpressionParser() {
 		if (predicateExpressionParser == null)
-			predicateExpressionParser = new PredicateExpressionParser(scanner, ast);
+			predicateExpressionParser = new PredicateExpressionParser(scanner, getAST());
 		return predicateExpressionParser;
 	}
 
 	public void setPredicateExpressionParser(PredicateExpressionParser predicateExpressionParser) {
 		this.predicateExpressionParser = predicateExpressionParser;
+	}
+
+	public void setAST(OPathASTFactory ast) {
+		this.ast = ast;
+	}
+
+	public OPathASTFactory getAST() {
+		if (ast == null) {
+			ast = OPathASTFactory.getInstance();
+		}
+		return ast;
 	}
 
 }
