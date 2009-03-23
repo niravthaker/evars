@@ -1,16 +1,22 @@
 LP 						::= RelativeLP	| AbsoluteLP
+
 AbsoluteLP 				::= '/' RelativeLP ? 
 							| '//' RelativeLP
 
 RelativeLP 				::= Step RLPopt
+
 RLPopt					::= '/' Step RelativeLP
 							| '//' Step RelativeLP
+
 Step					::= QName* Predicate?
 							| '*'
-							| @ QName*
+							| RegExQName*
+							| QName
 							| .
 							| ..
-QName					::= [a-z]*
+
+RegExQName				::= @QName
+
 Predicate				::= '[' Expr ']'
 
 Expr					::= EqualsExpr ExprOpt
@@ -22,10 +28,12 @@ EqualsExpr				::= RelExpr EqExprOpt
 
 EqExprOpt				::= '<' RelExpr EqualsExpr 
 							| '>' RelExpr EqualsExpr
-RelExpr					::= <digit> | <literal> | Method Invocation
+
+RelExpr					::= <digit> | SLiteral | Method Invocation
+
 Method Invocation		::= '#' QName
 
+SLiteral				::= ' QName ' | ' RegExQName '
  							
+QName					::= [a-zA-Z0-9_[]{}\/'";:$&~`%]*
  							
-Example:
-	/company//vendor/contact
