@@ -237,7 +237,6 @@ public class OPathInterpreterTest extends TestCase {
 	public static void prettyPrint(Variable frame) {
 		frame.accept(new ModelVisitor() {
 			int tab;
-
 			@Override
 			public void enter(Value value) {
 				tab++;
@@ -255,16 +254,17 @@ public class OPathInterpreterTest extends TestCase {
 
 			@Override
 			public void visit(Variable variable) {
-				print("Vari:" + variable.toString() + " => " + variable.getValue());
+				print("Varible:" + variable.toString() + " => " + variable.getValue());
 			}
 
 			private void print(String str) {
+				System.err.print("\t");
 				if (tab >= 1)
-					System.out.print("|");
+					System.err.print("|");
 				for (int i = 1; i < tab; i++) {
-					System.out.print("--");
+					System.err.print("-|-");
 				}
-				System.out.println(str);
+				System.err.println(str);
 			}
 		});
 	}
