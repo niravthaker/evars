@@ -10,14 +10,15 @@ package name.nirav.opath.reflect.serializable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import name.nirav.opath.Value;
 import name.nirav.opath.Variable;
+import name.nirav.opath.reflect.ReflectUtils;
 
 /**
  * @author Nirav Thaker
@@ -36,6 +37,8 @@ public class ReflectValue extends Value {
 
 	@Override
 	public Object getComparableValue() {
+		if (value.getClass().equals(char[].class))
+			return new String((char[]) value);
 		return value;
 	}
 
@@ -46,40 +49,35 @@ public class ReflectValue extends Value {
 
 	@Override
 	public List<Variable> getVariables() {
-		if (value == null 
-				|| Number.class.isAssignableFrom(value.getClass())
-				|| Character.class.isAssignableFrom(value.getClass())
-				|| Boolean.class.isAssignableFrom(value.getClass())
+		if (value == null || ReflectUtils.isBoxedPrimitive(value.getClass())
 				|| value.getClass().getName().indexOf("this$") != -1)
 			return Collections.emptyList();
 
 		Class<?> type = value.getClass().getComponentType();
-		Field[] fields;
+		Collection<Field> fields;
 		if (type == null)
-			fields = value.getClass().getDeclaredFields();
+			fields = ReflectUtils.getAllFields(value.getClass());
 		else
-			fields = type.getDeclaredFields();
+			fields = ReflectUtils.getAllFields(type);
 
 		List<Variable> lst = new ArrayList<Variable>();
 		List<String> excludeList = Arrays.asList("entrySet", "keySet");
 		for (Field field : fields) {
 			try {
-				boolean isConstant = Modifier.isFinal(field.getModifiers())
-						&& Modifier.isStatic(field.getModifiers());
-				if (isConstant || excludeList.contains(field.getName())) {
+				if (ReflectUtils.isConstant(field) || excludeList.contains(field.getName())) {
 					continue;
 				}
-				if(type != null) {
-					int length = ((Object[])value).length;
-					for(int i = 0 ; i< length ; i++) {
+				if (type != null) {
+					int length = ((Object[]) value).length;
+					for (int i = 0; i < length; i++) {
 						Object object = Array.get(value, i);
-						if(object != null) {
+						if (object != null) {
 							ReflectVariable var = new ReflectVariable(field, object);
 							var.setParent(holder);
 							lst.add(var);
 						}
 					}
-				}else {
+				} else {
 					ReflectVariable var = new ReflectVariable(field, value);
 					var.setParent(holder);
 					lst.add(var);
