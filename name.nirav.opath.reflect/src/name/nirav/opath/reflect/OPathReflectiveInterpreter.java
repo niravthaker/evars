@@ -23,12 +23,26 @@ import name.nirav.opath.reflect.serializable.ReflectVariable;
  * 
  */
 public class OPathReflectiveInterpreter {
-	public static Collection<Variable> interpret(final Object contextObject, String expr) {
+	public static Collection<Object> findAll(final Object contextObject, String expr) {
+		ReflectVariable context = wrap(contextObject);
+		Collection<Variable> result = new OPathInterpreter().evaluate(expr, context).getResult();
+		Collection<Object> results = new ArrayList<Object>(result.size());
+		for (Variable variable : result) {
+			results.add(variable.getValue().getValue());
+		}
+		return results;
+	}
+
+	public static Object find(final Object contextObject, String expr) {
+		return findAll(contextObject, expr).iterator().next();
+	}
+
+	public static ReflectVariable wrap(final Object contextObject) {
 		ReflectVariable context = new ReflectVariable(contextObject.getClass().getSimpleName()) {
 			@Override
 			public List<Variable> getChildren() {
-				Field[] fields = contextObject.getClass().getDeclaredFields();
-				List<Variable> list = new ArrayList<Variable>();
+				Collection<Field> fields = ReflectUtils.getAllFields(contextObject.getClass());
+				List<Variable> list = new ArrayList<Variable>(fields.size());
 				for (Field field : fields) {
 					list.add(ReflectVariable.create(field, contextObject));
 				}
@@ -36,6 +50,6 @@ public class OPathReflectiveInterpreter {
 			}
 		};
 		context.setValue(new ReflectValue(contextObject, context));
-		return new OPathInterpreter().evaluate(expr, context).getResult();
+		return context;
 	}
 }
