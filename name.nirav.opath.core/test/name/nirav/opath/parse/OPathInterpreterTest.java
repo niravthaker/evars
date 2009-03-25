@@ -170,6 +170,7 @@ public class OPathInterpreterTest extends TestCase {
 			public String toString() {
 				return getComparableValue().toString();
 			}
+
 			@Override
 			public Object getComparableValue() {
 				return "test";
@@ -246,18 +247,22 @@ public class OPathInterpreterTest extends TestCase {
 			public void exit(Value value) {
 				tab--;
 			}
+
 			@Override
 			public void visit(Value value) {
 				super.visit(value);
 			}
+
 			@Override
 			public void visit(Variable variable) {
 				print("Vari:" + variable.toString() + " => " + variable.getValue());
 			}
 
 			private void print(String str) {
-				for (int i = 0; i < tab; i++) {
-					System.out.print("   ");
+				if (tab >= 1)
+					System.out.print("|");
+				for (int i = 1; i < tab; i++) {
+					System.out.print("--");
 				}
 				System.out.println(str);
 			}
