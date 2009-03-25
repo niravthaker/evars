@@ -37,8 +37,7 @@ public class MainTest {
 		C c = new C();
 		c.c = 'Z';
 		a.b.mems.add(c);
-		assertEquals(c.c, OPathReflectiveInterpreter.interpret(a, "//c").iterator().next()
-				.getValue().getValue());
+		assertEquals(c.c, OPathReflectiveInterpreter.findAll(a, "//c").iterator().next());
 	}
 
 	@Test
