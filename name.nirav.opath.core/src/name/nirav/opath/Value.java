@@ -40,8 +40,8 @@ public class Value {
 	public void accept(ModelVisitor visitor) {
 		visitor.visit(this);
 		visitor.enter(this);
-		if (variables != null) {
-			for (Variable var : variables) {
+		if (getVariables() != null) {
+			for (Variable var : getVariables()) {
 				var.accept(visitor);
 			}
 		}

@@ -51,7 +51,7 @@ public class Variable {
 
 	public void accept(ModelVisitor visitor) {
 		visitor.visit(this);
-		if (value != null)
+		if (getValue() != null)
 			value.accept(visitor);
 	}
 
