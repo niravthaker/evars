@@ -42,4 +42,15 @@ public class ReflectUtils {
 		return Number.class.isAssignableFrom(clazz) || Character.class.isAssignableFrom(clazz)
 				|| Boolean.class.isAssignableFrom(clazz);
 	}
+
+	public static Object getFieldValue(Field field, Object o) {
+		field.setAccessible(true);
+		Object object = null;
+		try {
+			object = field.get(o);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return object;
+	}
 }

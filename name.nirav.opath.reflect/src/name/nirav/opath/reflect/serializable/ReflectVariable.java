@@ -11,6 +11,7 @@ package name.nirav.opath.reflect.serializable;
 import java.lang.reflect.Field;
 
 import name.nirav.opath.Variable;
+import name.nirav.opath.reflect.ReflectUtils;
 
 /**
  * @author Nirav Thaker
@@ -25,20 +26,14 @@ public class ReflectVariable extends Variable {
 		super(field.getName());
 		this.field = field;
 		obj = o;
-		field.setAccessible(true);
-		try {
-			Object object = field.get(o);
-			setValue(new ReflectValue(object, this));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		Object object = ReflectUtils.getFieldValue(field, o);
+		setValue(new ReflectValue(object, this));
 	}
 
 	public ReflectVariable(String string) {
 		super(string);
 	}
 
-	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
