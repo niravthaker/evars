@@ -39,7 +39,12 @@ public class ReflectVariable extends Variable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((field == null) ? 0 : field.hashCode());
-		result = prime * result + ((obj == null) ? 0 : obj.hashCode());
+		int hashCode =0;
+		try {
+			hashCode=obj.hashCode();
+		} catch (Exception e) {
+		}
+		result = prime * result + ((obj == null) ? 0 : hashCode);
 		return result;
 	}
 

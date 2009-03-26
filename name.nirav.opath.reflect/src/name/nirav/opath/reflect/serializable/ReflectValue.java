@@ -37,7 +37,7 @@ public class ReflectValue extends Value {
 
 	@Override
 	public Object getComparableValue() {
-		if (value.getClass().equals(char[].class))
+		if (value != null && value.getClass().equals(char[].class))
 			return new String((char[]) value);
 		return value;
 	}
